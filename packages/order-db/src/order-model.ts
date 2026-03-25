@@ -6,7 +6,6 @@ export const OrderStatus = ["success", "failed"] as const;
 const OrderSchema = new Schema(
   {
     userId: { type: String, required: true },
-    email: { type: String, required: true },
     amount: { type: Number, required: true },
     status: { type: String, required: true, enum: OrderStatus },
     products: {
@@ -20,7 +19,7 @@ const OrderSchema = new Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export type OrderSchemaType = InferSchemaType<typeof OrderSchema>;

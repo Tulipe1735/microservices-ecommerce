@@ -10,19 +10,20 @@ declare module "fastify" {
 
 export const shouldBeUser = async (
   request: FastifyRequest,
-  reply: FastifyReply
+  reply: FastifyReply,
 ) => {
   const { userId } = Clerk.getAuth(request);
   if (!userId) {
-    return reply.status(401).send({ message: "You are not logged in!" });
+    return reply.status(401).send({ message: "You are not logged in!" }); //登录失败情况
   }
 
-  request.userId = userId;
+  request.userId = userId; //登录成功后设置userId
+  // fastify不需要next()
 };
 
 export const shouldBeAdmin = async (
   request: FastifyRequest,
-  reply: FastifyReply
+  reply: FastifyReply,
 ) => {
   const auth = Clerk.getAuth(request);
   if (!auth.userId) {

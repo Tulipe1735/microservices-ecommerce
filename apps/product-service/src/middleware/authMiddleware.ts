@@ -13,24 +13,24 @@ declare global {
 export const shouldBeUser = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const auth = getAuth(req);
   const userId = auth.userId;
 
   if (!userId) {
-    return res.status(401).json({ message: "You are not logged in!" });
+    return res.status(401).json({ message: "You are not logged in!" }); //登录失败情况
   }
 
-  req.userId = auth.userId;
+  req.userId = auth.userId; //登录成功后设置userId
 
-  return next();
+  return next(); //继续执行后面的接口
 };
 
 export const shouldBeAdmin = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const auth = getAuth(req);
   const userId = auth.userId;

@@ -10,9 +10,9 @@ app.use(
   cors({
     origin: ["http://localhost:3002", "http://localhost:3003"],
     credentials: true,
-  })
+  }),
 );
-app.use(express.json());
+app.use(express.json()); //从请求体得到数据的中间件
 app.use(clerkMiddleware());
 
 app.get("/health", (req: Request, res: Response) => {
@@ -27,6 +27,7 @@ app.get("/test", shouldBeUser, (req, res) => {
   res.json({ message: "Product service authenticated", userId: req.userId });
 });
 
+// express中间件挂载，具体请求交给对应路由器
 app.use("/products", productRouter);
 app.use("/categories", categoryRouter);
 
@@ -49,4 +50,4 @@ const start = async () => {
   }
 };
 
-start()
+start();

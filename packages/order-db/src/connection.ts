@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// 只连接一次
 let isConnected = false;
 
 export const connectOrderDB = async () => {

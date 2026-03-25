@@ -3,26 +3,17 @@ import { prisma, Prisma } from "@repo/product-db";
 import { producer } from "../utils/kafka";
 import { StripeProductType } from "@repo/types";
 
+// 创建产品
 export const createProduct = async (req: Request, res: Response) => {
   const data: Prisma.ProductCreateInput = req.body;
 
-  const { colors, images } = data;
-  if (!colors || !Array.isArray(colors) || colors.length === 0) {
-    return res.status(400).json({ message: "Colors array is required!" });
-  }
+  const { images } = data;
 
   if (!images || typeof images !== "object") {
     return res.status(400).json({ message: "Images object is required!" });
   }
 
-  const missingColors = colors.filter((color) => !(color in images));
-
-  if (missingColors.length > 0) {
-    return res
-      .status(400)
-      .json({ message: "Missing images for colors!", missingColors });
-  }
-
+  // 异步创建product
   const product = await prisma.product.create({ data });
 
   const stripeProduct: StripeProductType = {
@@ -35,6 +26,7 @@ export const createProduct = async (req: Request, res: Response) => {
   res.status(201).json(product);
 };
 
+// 更新产品
 export const updateProduct = async (req: Request, res: Response) => {
   const { id } = req.params;
   const data: Prisma.ProductUpdateInput = req.body;
@@ -47,6 +39,7 @@ export const updateProduct = async (req: Request, res: Response) => {
   return res.status(200).json(updatedProduct);
 };
 
+// 删除产品
 export const deleteProduct = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -59,9 +52,11 @@ export const deleteProduct = async (req: Request, res: Response) => {
   return res.status(200).json(deletedProduct);
 };
 
+// 查找所有产品
 export const getProducts = async (req: Request, res: Response) => {
-  const { sort, category, search, limit } = req.query;
-
+  const { sort, category, search, limit } = req.query; //?=所以用query
+  // 2:24:03
+  // 按照不同的顺序查找
   const orderBy = (() => {
     switch (sort) {
       case "asc":
@@ -79,14 +74,17 @@ export const getProducts = async (req: Request, res: Response) => {
     }
   })();
 
+  // 查找产品
   const products = await prisma.product.findMany({
     where: {
+      // 按种类查找
       category: {
         slug: category as string,
       },
+      // 按名字查找
       name: {
         contains: search as string,
-        mode: "insensitive",
+        mode: "insensitive", //大小写均可
       },
     },
     orderBy,
@@ -96,9 +94,11 @@ export const getProducts = async (req: Request, res: Response) => {
   res.status(200).json(products);
 };
 
+// 查找单一产品
 export const getProduct = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params; //slash/id所以用params
 
+  // 查找单个产品
   const product = await prisma.product.findUnique({
     where: { id: Number(id) },
   });

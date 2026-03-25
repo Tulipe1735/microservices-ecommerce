@@ -9,7 +9,13 @@
   "dependencies": {
     "@clerk/backend": "^3.2.2",
     "@hono/clerk-auth": "^3.1.0",
-    "hono": "^4.12.9"
+    "@hono/node-server": "^1.19.11",
+    "@prisma/client": "^7.5.0",
+    "@repo/kafka": "workspace:*",
+    "@repo/types": "workspace:*",
+    "hono": "^4.12.9",
+    "prisma": "^7.5.0",
+    "stripe": "^20.4.1"
   },
   "devDependencies": {
     "wrangler": "^4.4.0"

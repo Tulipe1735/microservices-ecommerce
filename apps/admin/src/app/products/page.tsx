@@ -10,8 +10,6 @@ const getData = async (): Promise<Product[]> => {
       shortDescription: "Soft everyday T-shirt",
       description:
         "A breathable cotton T-shirt designed for daily wear with a relaxed fit and clean finish.",
-      sizes: ["S", "M", "L", "XL"],
-      colors: ["white", "black", "navy"],
       images: {
         white:
           "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=300&q=80",
@@ -27,8 +25,6 @@ const getData = async (): Promise<Product[]> => {
       shortDescription: "Warm fleece hoodie",
       description:
         "Heavyweight fleece hoodie with a roomy silhouette, ribbed cuffs, and a structured hood.",
-      sizes: ["M", "L", "XL"],
-      colors: ["gray", "olive"],
       images: {
         gray: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=300&q=80",
         olive:
@@ -42,8 +38,7 @@ const getData = async (): Promise<Product[]> => {
       shortDescription: "Modern denim outerwear",
       description:
         "A slim-fit denim jacket with durable stitching and a lightly washed finish for layering.",
-      sizes: ["S", "M", "L"],
-      colors: ["blue", "charcoal"],
+
       images: {
         blue: "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=300&q=80",
         charcoal:
@@ -57,8 +52,7 @@ const getData = async (): Promise<Product[]> => {
       shortDescription: "Tapered comfort pants",
       description:
         "Stretch joggers with an elastic waistband, ankle cuffs, and a tapered shape for casual wear.",
-      sizes: ["S", "M", "L", "XL"],
-      colors: ["black", "stone"],
+
       images: {
         black:
           "https://images.unsplash.com/photo-1506629905607-d9c297d6a8d1?auto=format&fit=crop&w=300&q=80",
@@ -73,8 +67,7 @@ const getData = async (): Promise<Product[]> => {
       shortDescription: "Low-top casual sneakers",
       description:
         "Minimal canvas sneakers with cushioned insoles and durable rubber soles for all-day use.",
-      sizes: ["40", "41", "42", "43", "44"],
-      colors: ["cream", "green"],
+
       images: {
         cream:
           "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=300&q=80",
@@ -89,8 +82,7 @@ const getData = async (): Promise<Product[]> => {
       shortDescription: "Compact daily bag",
       description:
         "A structured crossbody bag with adjustable strap, internal pockets, and smooth matte leather.",
-      sizes: ["One Size"],
-      colors: ["tan", "black"],
+
       images: {
         tan: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=300&q=80",
         black:
@@ -104,8 +96,7 @@ const getData = async (): Promise<Product[]> => {
       shortDescription: "Lightweight summer shirt",
       description:
         "A relaxed linen shirt with vertical stripes, button front, and airy fabric for warm weather.",
-      sizes: ["S", "M", "L"],
-      colors: ["sky", "sand"],
+
       images: {
         sky: "https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=300&q=80",
         sand: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=300&q=80",
@@ -118,8 +109,7 @@ const getData = async (): Promise<Product[]> => {
       shortDescription: "Tailored cold-weather coat",
       description:
         "A mid-length wool blend coat with clean lapels, button closure, and a sharp structured drape.",
-      sizes: ["M", "L", "XL"],
-      colors: ["camel", "graphite"],
+
       images: {
         camel:
           "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=300&q=80",

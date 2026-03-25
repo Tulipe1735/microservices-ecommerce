@@ -22,8 +22,6 @@ export type Product = {
   name: string;
   shortDescription: string;
   description: string;
-  sizes: string[];
-  colors: string[];
   images: Record<string, string>;
 };
 

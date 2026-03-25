@@ -1,5 +1,6 @@
 import z from "zod";
 
+// 类型声明
 export interface CustomJwtSessionClaims {
   metadata?: {
     role?: "user" | "admin";

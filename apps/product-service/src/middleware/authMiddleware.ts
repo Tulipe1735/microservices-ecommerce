@@ -39,6 +39,7 @@ export const shouldBeAdmin = (
     return res.status(401).json({ message: "You are not logged in!" });
   }
 
+  // 见auth.ts
   const claims = auth.sessionClaims as CustomJwtSessionClaims;
 
   if (claims.metadata?.role !== "admin") {

@@ -30,8 +30,10 @@ export const shouldBeAdmin = async (
     return reply.status(401).send({ message: "You are not logged in!" });
   }
 
+  // 见auth.ts
   const claims = auth.sessionClaims as CustomJwtSessionClaims;
 
+  // 在clerk里面设置了metedata
   if (claims.metadata?.role !== "admin") {
     return reply.status(403).send({ message: "Unauthorized!" });
   }

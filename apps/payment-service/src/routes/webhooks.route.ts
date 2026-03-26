@@ -6,6 +6,7 @@ import { producer } from "../utils/kafka";
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET as string;
 const webhookRoute = new Hono();
 
+// 健康检查
 webhookRoute.get("/", (c) => {
   return c.json({
     status: "ok webhook",
@@ -14,15 +15,15 @@ webhookRoute.get("/", (c) => {
   });
 });
 
-
+// endpoint
 webhookRoute.post("/stripe", async (c) => {
   const body = await c.req.text();
-  const sig = c.req.header("stripe-signature");
+  const sig = c.req.header("stripe-signature"); //验证签名
 
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(body, sig!, webhookSecret);
+    event = stripe.webhooks.constructEvent(body, sig!, webhookSecret); //防止伪造信息
   } catch (error) {
     console.log("Webhook verification failed!");
     return c.json({ error: "Webhook verification failed!" }, 400);
@@ -33,7 +34,7 @@ webhookRoute.post("/stripe", async (c) => {
       const session = event.data.object as Stripe.Checkout.Session;
 
       const lineItems = await stripe.checkout.sessions.listLineItems(
-        session.id
+        session.id,
       );
       // TODO: CREATE ORDER
       producer.send("payment.successful", {
@@ -55,6 +56,7 @@ webhookRoute.post("/stripe", async (c) => {
     default:
       break;
   }
+  // 返回响应
   return c.json({ received: true });
 });
 

@@ -1,7 +1,7 @@
 import { StripeProductType } from "@repo/types";
 import stripe from "./stripe";
 
-// ???????????? Stripe ?????
+// 创建StripeProduct
 export const createStripeProduct = async (item: StripeProductType) => {
   try {
     const res = await stripe.products.create({
@@ -19,7 +19,7 @@ export const createStripeProduct = async (item: StripeProductType) => {
   }
 };
 
-// ???? Stripe ?????
+//
 export const getStripeProductPrice = async (productId: number) => {
   try {
     const res = await stripe.prices.list({
@@ -32,7 +32,7 @@ export const getStripeProductPrice = async (productId: number) => {
   }
 };
 
-//
+// 删除StripeProduct
 export const deleteStripeProduct = async (productId: number) => {
   try {
     const res = await stripe.products.del(productId.toString());

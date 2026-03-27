@@ -37,6 +37,7 @@ webhookRoute.post("/stripe", async (c) => {
         session.id,
       );
       // TODO: CREATE ORDER
+      // 给kafka发支付成功信息
       producer.send("payment.successful", {
         value: {
           userId: session.client_reference_id,

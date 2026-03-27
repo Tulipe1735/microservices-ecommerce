@@ -27,6 +27,7 @@ fastify.get("/test", { preHandler: shouldBeUser }, (request, reply) => {
 
 fastify.register(orderRoute);
 
+// 初始化 Kafka 相关服务，并启动 HTTP 服务器
 const start = async () => {
   try {
     Promise.all([
@@ -34,7 +35,7 @@ const start = async () => {
       await producer.connect(),
       await consumer.connect(),
     ]);
-    await runKafkaSubscriptions();
+    await runKafkaSubscriptions(); //接受payment.successful
     await fastify.listen({ port: 8001 });
     console.log("Order service is running on port 8001");
   } catch (err) {

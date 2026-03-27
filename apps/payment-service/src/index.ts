@@ -43,10 +43,11 @@ app.route("/webhooks", webhookRoute);
 //   return c.json(res);
 // });
 
+// 初始化 Kafka 相关服务，并启动 HTTP 服务器
 const start = async () => {
   try {
     Promise.all([await producer.connect(), await consumer.connect()]);
-    await runKafkaSubscriptions();
+    await runKafkaSubscriptions(); //启动consumer去订阅消息,跟stripe打交道
     serve(
       {
         fetch: app.fetch,

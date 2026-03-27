@@ -38,9 +38,10 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     .json({ message: err.message || "Inter Server Error!" });
 });
 
+// 初始化 Kafka 相关服务，并启动 HTTP 服务器
 const start = async () => {
   try {
-    Promise.all([await producer.connect(), await consumer.connect()]);
+    await Promise.all([producer.connect(), consumer.connect()]);
     app.listen(8000, () => {
       console.log("Product service is running on 8000");
     });

@@ -15,13 +15,13 @@ export const createProduct = async (req: Request, res: Response) => {
 
   // 异步创建product
   const product = await prisma.product.create({ data });
-
+  // 构建stripeProduct
   const stripeProduct: StripeProductType = {
     id: product.id.toString(),
     name: product.name,
     price: product.price,
   };
-
+  // 给kafka发消息
   producer.send("product.created", { value: stripeProduct });
   res.status(201).json(product);
 };
@@ -47,6 +47,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
     where: { id: Number(id) },
   });
 
+  // 给kafka发消息
   producer.send("product.deleted", { value: Number(id) });
 
   return res.status(200).json(deletedProduct);

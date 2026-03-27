@@ -6,6 +6,7 @@ export const createProducer = (kafka: Kafka) => {
   const connect = async () => {
     await producer.connect();
   };
+  // 发送信息
   const send = async (topic: string, message: object) => {
     await producer.send({
       topic,

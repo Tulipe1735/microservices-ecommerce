@@ -8,17 +8,18 @@ export const createConsumer = (kafka: Kafka, groupId: string) => {
     console.log("Kafka consumer connected:" + groupId);
   };
 
+  // 主动拉取消息
   const subscribe = async (
     topics: {
       topicName: string;
       topicHandler: (message: any) => Promise<void>;
-    }[]
+    }[],
   ) => {
     await consumer.subscribe({
-      topics: topics.map((topic) => topic.topicName),
+      topics: topics.map((topic) => topic.topicName), //从client拿到topicName
       fromBeginning: true,
     });
-
+    // 读取信息
     await consumer.run({
       eachMessage: async ({ topic, partition, message }) => {
         try {

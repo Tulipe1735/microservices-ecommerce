@@ -4,6 +4,7 @@ import { Order } from "@repo/order-db";
 import { startOfMonth, subMonths } from "date-fns";
 import { OrderChartType } from "@repo/types";
 
+// fetch orders
 export const orderRoute = async (fastify: FastifyInstance) => {
   fastify.get(
     "/user-orders",

@@ -1,20 +1,29 @@
 import React from "react";
 import Image from "next/image";
 import ProductInteraction from "@/components/ProductInteraction";
+import { ProductType } from "@repo/types";
 
 // mock data
-const product = {
-  id: 1,
-  name: "iPhone 13 Pro",
-  shortDescription: "The latest iPhone with A15 Bionic chip",
-  description:
-    "The iPhone 13 Pro features a 6.1-inch Super Retina XDR display, A15 Bionic chip, Pro camera system with Night mode, and up to 22 hours of battery life.",
-  price: 999,
-  images: {
-    0: "/products/1g.png",
-    1: "/products/1p.png",
-    2: "/products/1gr.png",
-  },
+// const product = {
+//   id: 1,
+//   name: "iPhone 13 Pro",
+//   shortDescription: "The latest iPhone with A15 Bionic chip",
+//   description:
+//     "The iPhone 13 Pro features a 6.1-inch Super Retina XDR display, A15 Bionic chip, Pro camera system with Night mode, and up to 22 hours of battery life.",
+//   price: 999,
+//   images: {
+//     0: "/products/1g.png",
+//     1: "/products/1p.png",
+//     2: "/products/1gr.png",
+//   },
+// };
+
+const fetchProduct = async (id: string) => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/products/${id}`,
+  );
+  const data: ProductType = await res.json();
+  return data;
 };
 
 export const generateMetadata = async ({
@@ -23,9 +32,7 @@ export const generateMetadata = async ({
   params: Promise<{ id: string }>;
 }) => {
   const { id } = await params;
-
-  // TODO: get the product from db
-  // TEMPORARY (这里使用的是你之前定义的 product mock 数据)
+  const product = await fetchProduct(id);
   return {
     title: product.name,
     description: product.description,
@@ -34,13 +41,13 @@ export const generateMetadata = async ({
 
 const ProductPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
-
+  const product = await fetchProduct(id);
   return (
     <div className="flex flex-col gap-4 lg:flex-row md:gap-12 mt-12">
       {/* 图片 */}
       <div className="w-full lg:w-5/12 relative aspect-[2/3]">
         <Image
-          src={product.images[0]}
+          src={product.images[id]}
           alt={product.name}
           fill
           className="object-contain rounded-md"

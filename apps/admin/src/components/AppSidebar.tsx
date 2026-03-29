@@ -204,8 +204,7 @@ const AppSidebar = () => {
               {/* 查看交易记录 */}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  {/* temp */}
-                  <Link href="/users">
+                  <Link href="/orders">
                     <ShoppingBasket />
                     See all Transactions
                   </Link>

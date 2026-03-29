@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -12,78 +11,42 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { OrderType } from "@repo/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 
-export type User = {
-  id: string;
-  avatar?: string;
-  fullName: string;
-  phone: string;
-  status: "active" | "inactive";
-};
+// export type Payment = {
+//   id: string;
+//   userId: number;
+//   amount: number;
+//   fullName: string;
+//   email: string;
+//   status: "pending" | "processing" | "success" | "failed";
+// };
 
-const getInitials = (name: string) =>
-  name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<OrderType>[] = [
   {
     id: "select",
     header: ({ table }) => (
       <Checkbox
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         checked={
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && "indeterminate")
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
       />
     ),
     cell: ({ row }) => (
       <Checkbox
-        checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
+        checked={row.getIsSelected()}
       />
     ),
   },
   {
-    accessorKey: "avatar",
-    header: "Avatar",
-    cell: ({ row }) => {
-      const user = row.original;
-
-      return (
-        <Avatar className="size-9">
-          <AvatarImage
-            src={user.avatar}
-            alt={user.fullName}
-            className="rounded-full object-cover"
-          />
-          <AvatarFallback>{getInitials(user.fullName)}</AvatarFallback>
-        </Avatar>
-      );
-    },
-  },
-  {
-    accessorKey: "fullName",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        User
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-  },
-  {
-    accessorKey: "phone",
-    header: "Phone",
+    accessorKey: "_id",
+    header: "ID",
   },
   {
     accessorKey: "status",
@@ -94,9 +57,10 @@ export const columns: ColumnDef<User>[] = [
       return (
         <div
           className={cn(
-            "w-max rounded-md px-2 py-1 text-xs capitalize",
-            status === "active" && "bg-green-500/40",
-            status === "inactive" && "bg-red-500/40",
+            `p-1 rounded-md w-max text-xs`,
+            status === "pending" && "bg-yellow-500/40",
+            status === "success" && "bg-green-500/40",
+            status === "failed" && "bg-red-500/40",
           )}
         >
           {status as string}
@@ -105,9 +69,22 @@ export const columns: ColumnDef<User>[] = [
     },
   },
   {
+    accessorKey: "amount",
+    header: () => <div className="text-right">Amount</div>,
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue("amount"));
+      const formatted = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+      }).format(amount / 100);
+
+      return <div className="text-right font-medium">{formatted}</div>;
+    },
+  },
+  {
     id: "actions",
     cell: ({ row }) => {
-      const user = row.original;
+      const order = row.original;
 
       return (
         <DropdownMenu>
@@ -120,14 +97,15 @@ export const columns: ColumnDef<User>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(user.id)}
+              onClick={() => navigator.clipboard.writeText(order._id)}
             >
-              Copy user ID
+              Copy payment ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href={`/users/${user.id}`}>View customer</Link>
+            <DropdownMenuItem>
+              <Link href={`/users/${order.userId}`}>View customers</Link>
             </DropdownMenuItem>
+            <DropdownMenuItem>View order details</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

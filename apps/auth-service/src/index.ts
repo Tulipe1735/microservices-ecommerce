@@ -8,9 +8,9 @@ import { producer } from "./utils/kafka.js";
 const app = express();
 app.use(
   cors({
-    origin: ["http://localhost:3003"],
+    origin: ["http://localhost:3003"], //auth_service env
     credentials: true,
-  })
+  }),
 );
 app.use(express.json());
 app.use(clerkMiddleware());
@@ -32,6 +32,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     .json({ message: err.message || "Inter Server Error!" });
 });
 
+// 启动函数
 const start = async () => {
   try {
     await producer.connect();

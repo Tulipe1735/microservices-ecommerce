@@ -21,8 +21,39 @@ import EditUser from "@/components/EditUser";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AppLineChart from "@/components/AppLineChart";
 import React from "react";
+import { auth, type User } from "@clerk/nextjs/server";
 
-const SingleUserPage = () => {
+const getData = async (id: string): Promise<User | null> => {
+  const { getToken } = await auth();
+  const token = await getToken();
+
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/users/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        cache: "no-store",
+      },
+    );
+
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+};
+
+const SingleUserPage = async ({ params }: { params: { id: string } }) => {
+  const { id } = params;
+  const data = await getData(id);
+
+  if (!data) {
+    return <div className="">User not found</div>;
+  }
+
   return (
     <div className="">
       <Breadcrumb>
@@ -36,7 +67,9 @@ const SingleUserPage = () => {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>John Doe</BreadcrumbPage>
+            <BreadcrumbPage>
+              {data?.firstName + " " + data?.lastName || data?.lastName || "-"}
+            </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -111,10 +144,18 @@ const SingleUserPage = () => {
           <div className="bg-primary-foreground p-4 rounded-lg space-y-2">
             <div className="flex items-center gap-2">
               <Avatar className="size-12">
-                <AvatarImage src="https://avatars.githubusercontent.com/u/1486366" />
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarImage src={data.imageUrl} />
+                <AvatarFallback>
+                  {data?.firstName?.charAt(0) ||
+                    data?.lastName?.charAt(0) ||
+                    "-"}
+                </AvatarFallback>
               </Avatar>
-              <h1 className="text-xl font-semibold">John Doe</h1>
+              <h1 className="text-xl font-semibold">
+                {data?.firstName + " " + data?.lastName ||
+                  data?.lastName ||
+                  "-"}
+              </h1>
             </div>
             <p className="text-sm text-muted-foreground">
               Lorem ipsum dolor, sit amet consectetur adipisicing elit. Vel
@@ -143,23 +184,27 @@ const SingleUserPage = () => {
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-bold">Full name:</span>
-                <span>John Doe</span>
+                <span>
+                  {data?.firstName + " " + data?.lastName ||
+                    data?.lastName ||
+                    "-"}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-bold">Phone:</span>
-                <span>+1 234 5678</span>
+                <span>{data.phoneNumbers[0]?.phoneNumber || "-"}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-bold">Address:</span>
-                <span>123 Abbey road</span>
+                <span className="font-bold">Role:</span>
+                <span>{String(data.publicMetadata?.role) || "user"}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-bold">City:</span>
-                <span>NYC</span>
+                <span className="font-bold">Status:</span>
+                <span>{data.banned ? "banned" : "active"}</span>
               </div>
             </div>
             <p className="text-sm text-muted-foreground mt-4">
-              Joined on 2025.01.01
+              Joined on {new Date(data.createdAt).toLocaleString("zh-CN")}
             </p>
           </div>
         </div>

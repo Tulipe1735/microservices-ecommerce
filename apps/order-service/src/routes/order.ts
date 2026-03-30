@@ -19,10 +19,11 @@ export const orderRoute = async (fastify: FastifyInstance) => {
     { preHandler: shouldBeAdmin },
     async (request, reply) => {
       const { limit } = request.query as { limit: number };
-      const orders = await Order.find().limit(limit).sort({ createdAt: -1 });
+      const orders = await Order.find().limit(limit).sort({ createdAt: -1 }); //return latest items
       return reply.send(orders);
     },
   );
+  // get last 6 months orders
   fastify.get(
     "/order-chart",
     { preHandler: shouldBeAdmin },
@@ -30,14 +31,16 @@ export const orderRoute = async (fastify: FastifyInstance) => {
       const now = new Date();
       const sixMonthsAgo = startOfMonth(subMonths(now, 5));
 
-      // { month: "April", total: 173, successful: 100 }
+      // { month: "April", total: 173, successful: 100 } return stuff
 
+      // MongoDB aggregate
       const raw = await Order.aggregate([
         {
           $match: {
             createdAt: { $gte: sixMonthsAgo, $lte: now },
           },
         },
+        // MongoDB group
         {
           $group: {
             _id: {

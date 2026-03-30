@@ -1,5 +1,5 @@
 import type { Product, Category } from "@repo/product-db";
-import z from "zod";
+import { z } from "zod";
 
 // 解耦
 export type ProductType = Product;

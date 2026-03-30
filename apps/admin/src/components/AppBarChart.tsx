@@ -7,6 +7,8 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { OrderChartType } from "@repo/types";
+import { use } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 const chartConfig = {
@@ -21,16 +23,21 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const chartData = [
-  { month: "January", total: 186, success: 80 },
-  { month: "February", total: 305, success: 200 },
-  { month: "March", total: 237, success: 120 },
-  { month: "April", total: 73, success: 190 },
-  { month: "May", total: 209, success: 130 },
-  { month: "June", total: 214, success: 140 },
-];
+// const chartData = [
+//   { month: "January", total: 186, success: 80 },
+//   { month: "February", total: 305, success: 200 },
+//   { month: "March", total: 237, success: 120 },
+//   { month: "April", total: 73, success: 190 },
+//   { month: "May", total: 209, success: 130 },
+//   { month: "June", total: 214, success: 140 },
+// ];
 
-const AppBarChart = () => {
+const AppBarChart = ({
+  dataPromise,
+}: {
+  dataPromise: Promise<OrderChartType[]>;
+}) => {
+  const chartData = use(dataPromise); //直接“展开 Promise”
   return (
     <div className="">
       <h1 className="text-lg font-medium mb-6">Total Revenue</h1>

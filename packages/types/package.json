@@ -9,7 +9,7 @@
   "dependencies": {
     "@repo/product-db": "workspace:*",
     "@repo/order-db": "workspace:*",
-    "zod": "^4.1.9"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",

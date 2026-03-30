@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 
 // 类型声明
 export interface CustomJwtSessionClaims {

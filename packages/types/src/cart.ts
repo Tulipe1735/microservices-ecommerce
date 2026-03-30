@@ -1,5 +1,5 @@
 import type { Product } from "@repo/product-db";
-import z from "zod";
+import { z } from "zod";
 
 export type CartItemType = Product & {
   quantity: number;

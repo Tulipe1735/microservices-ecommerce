@@ -123,7 +123,7 @@ const CardList = async ({ title }: { title: string }) => {
               >
                 <CardContent className="flex-1 p-0">
                   <CardTitle className="text-sm font-medium">
-                    {item.userId}
+                    {item.email}
                   </CardTitle>
                   <Badge variant="secondary">{item.status}</Badge>
                 </CardContent>

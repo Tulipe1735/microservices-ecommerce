@@ -29,26 +29,73 @@ import {
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { ScrollArea } from "./ui/scroll-area";
+import {
+  CategoryFormSchema,
+  CategoryType,
+  ProductFormSchema,
+} from "@repo/types";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { waitForDebugger } from "inspector";
+import { useAuth } from "@clerk/nextjs";
 
-// temp
-const categories = ["Machine-A", "Machine-B"] as const;
+const fetchCategories = async () => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/categories`,
+  ).then((res) => res.json());
 
-const formSchema = z.object({
-  name: z.string().min(1, { message: "Product name is required!" }).max(50),
-  shortDescription: z
-    .string()
-    .min(1, { message: "Short description is required" })
-    .max(60),
-  description: z.string().min(1, { message: "Description is required" }),
-  price: z.number().min(1, { message: "Price is required" }),
-  category: z.enum(categories),
-  images: z.record(z.string(), z.string()),
-});
+  if (!res.ok) {
+    throw new Error("Failed to fetch categories!");
+  }
+  return await res.json();
+};
 
 const AddProduct = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof ProductFormSchema>>({
+    resolver: zodResolver(ProductFormSchema),
+    defaultValues: {
+      name: "",
+      shortDescription: "",
+      description: "",
+      price: 0,
+      categorySlug: "",
+      images: {},
+    },
   });
+
+  const { isPending, error, data } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
+
+  const { getToken } = useAuth();
+  // create mutation
+  const mutation = useMutation({
+    mutationFn: async (data: z.infer<typeof ProductFormSchema>) => {
+      const token = await getToken();
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/products`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (!res.ok) {
+        throw new Error("Fail to create product!");
+      }
+    },
+    onSuccess: () => {
+      toast.success("Category created product");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
   return (
     <SheetContent>
       <ScrollArea className="h-screen">
@@ -56,7 +103,10 @@ const AddProduct = () => {
           <SheetTitle className="mb-4">Add Product</SheetTitle>
           <SheetDescription asChild>
             <Form {...form}>
-              <form className="space-y-8">
+              <form
+                className="space-y-8"
+                onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
+              >
                 <FormField
                   control={form.control}
                   name="name"
@@ -113,7 +163,13 @@ const AddProduct = () => {
                     <FormItem>
                       <FormLabel>Price</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input
+                          type="number"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
+                        />
                       </FormControl>
                       <FormDescription>
                         Enter the price of the product
@@ -122,37 +178,41 @@ const AddProduct = () => {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <FormControl>
-                        {/* 种类选择下拉框 */}
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {categories.map((cat) => (
-                              <SelectItem key={cat} value={cat}>
-                                {cat}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormDescription>
-                        Enter the price of the product
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {/* 选择种类 */}
+                {data && (
+                  <FormField
+                    control={form.control}
+                    name="categorySlug"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category</FormLabel>
+                        <FormControl>
+                          {/* 种类选择下拉框 */}
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {data.map((cat: CategoryType) => (
+                                <SelectItem key={cat.id} value={cat.slug}>
+                                  {cat.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormDescription>
+                          Enter the price of the product
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {/* 上传图片 */}
                 <FormField
                   control={form.control}
                   name="images"
@@ -163,24 +223,36 @@ const AddProduct = () => {
                         <Input
                           type="file"
                           accept="image/*"
-                          multiple
-                          onChange={(e) => {
-                            const files = Array.from(e.target.files || []);
-                            const promises = files.map(
-                              (file) =>
-                                new Promise<[string, string]>((resolve) => {
-                                  const reader = new FileReader();
-                                  reader.onload = () =>
-                                    resolve([
-                                      file.name,
-                                      reader.result as string,
-                                    ]);
-                                  reader.readAsDataURL(file);
-                                }),
-                            );
-                            Promise.all(promises).then((entries) => {
-                              field.onChange(Object.fromEntries(entries));
-                            });
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              try {
+                                const formData = new FormData();
+                                formData.append("file", file);
+                                formData.append("upload_preset", "qngecom");
+
+                                const res = await fetch(
+                                  `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                                  {
+                                    method: "POST",
+                                    body: formData,
+                                  },
+                                );
+                                const data = await res.json();
+                                if (data.secure_url) {
+                                  const currentImages =
+                                    form.getValues("images") || {};
+                                  form.setValue("images", {
+                                    ...currentImages,
+                                    [`${Date.now()}_${file.name}`]:
+                                      data.secure_url,
+                                  });
+                                }
+                              } catch (err) {
+                                console.log(err);
+                                toast.error("Failed to upload");
+                              }
+                            }
                           }}
                         />
                       </FormControl>
@@ -191,7 +263,14 @@ const AddProduct = () => {
                     </FormItem>
                   )}
                 />
-                <Button type="submit">Submit</Button>
+                {/* 提交按钮 */}
+                <Button
+                  type="submit"
+                  disabled={mutation.isPending}
+                  className="disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {mutation.isPending ? "Submitting..." : "Submit"}
+                </Button>
               </form>
             </Form>
           </SheetDescription>

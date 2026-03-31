@@ -7,6 +7,7 @@ export interface CustomJwtSessionClaims {
   };
 }
 
+// 用户表单
 export const UserFormSchema = z.object({
   firstName: z
     .string({ message: "First name is required!" })

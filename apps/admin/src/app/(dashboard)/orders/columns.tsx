@@ -18,9 +18,9 @@ import Link from "next/link";
 
 // export type Payment = {
 //   id: string;
-//   userId: number;
 //   amount: number;
 //   fullName: string;
+//   userId: string;
 //   email: string;
 //   status: "pending" | "processing" | "success" | "failed";
 // };
@@ -47,6 +47,20 @@ export const columns: ColumnDef<OrderType>[] = [
   {
     accessorKey: "_id",
     header: "ID",
+  },
+  {
+    accessorKey: "email",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Email
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: "status",
@@ -99,11 +113,11 @@ export const columns: ColumnDef<OrderType>[] = [
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(order._id)}
             >
-              Copy payment ID
+              Copy order ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link href={`/users/${order.userId}`}>View customers</Link>
+              <Link href={`/users/${order.userId}`}>View customer</Link>
             </DropdownMenuItem>
             <DropdownMenuItem>View order details</DropdownMenuItem>
           </DropdownMenuContent>

@@ -9,6 +9,7 @@ export const createOrder = async (order: OrderType) => {
     const order = await newOrder.save();
     producer.send("order.created", {
       value: {
+        email: order.email,
         amount: order.amount,
         status: order.status,
       },

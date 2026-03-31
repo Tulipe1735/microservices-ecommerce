@@ -1,8 +1,7 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,23 +14,36 @@ import { cn } from "@/lib/utils";
 import type { User } from "@clerk/nextjs/server";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
-const getDisplayName = (user: User) =>
-  user.fullName ||
-  user.username ||
-  user.primaryEmailAddress?.emailAddress ||
-  "Unknown User";
-
-const getInitials = (name: string) =>
-  name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+// export type User = {
+//   id: string;
+//   avatar: string;
+//   fullName: string;
+//   email: string;
+//   status: "active" | "inactive";
+// };
 
 export const columns: ColumnDef<User>[] = [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        checked={row.getIsSelected()}
+      />
+    ),
+  },
   {
     accessorKey: "avatar",
     header: "Avatar",
@@ -54,16 +66,26 @@ export const columns: ColumnDef<User>[] = [
     header: "User",
     cell: ({ row }) => {
       const user = row.original;
-      const displayName = getDisplayName(user);
-
       return <div className="">{user.firstName || user.username || "-"}</div>;
     },
   },
-
   {
-    id: "phone",
-    accessorFn: (user) => user.primaryPhoneNumber?.phoneNumber || "-",
-    header: "Phone",
+    accessorKey: "email",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Email
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const user = row.original;
+      return <div className="">{user.emailAddresses[0]?.emailAddress}</div>;
+    },
   },
   {
     accessorKey: "status",
@@ -75,7 +97,7 @@ export const columns: ColumnDef<User>[] = [
       return (
         <div
           className={cn(
-            "p-1 rounded-md w-max text-xs",
+            `p-1 rounded-md w-max text-xs`,
             status === "active" && "bg-green-500/40",
             status === "banned" && "bg-red-500/40",
           )}
@@ -106,7 +128,7 @@ export const columns: ColumnDef<User>[] = [
               Copy user ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem>
               <Link href={`/users/${user.id}`}>View customer</Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

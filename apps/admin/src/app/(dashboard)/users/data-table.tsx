@@ -21,6 +21,13 @@ import {
 import { DataTablePagination } from "@/components/TablePagination";
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
+import { useAuth } from "@clerk/nextjs";
+import { CategoryFormSchema } from "@repo/types";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import z from "zod";
+import { User } from "@clerk/nextjs/server";
+import { useRouter } from "next/navigation";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -48,13 +55,53 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const { getToken } = useAuth();
+  const router = useRouter();
+  // create mutation
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const token = await getToken();
+      const selectedRows = table.getSelectedRowModel().rows;
+
+      Promise.all(
+        selectedRows.map(async (row) => {
+          const userId = (row.original as User).id;
+
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/users/${userId}`,
+            {
+              method: "DELETE",
+              body: JSON.stringify(data),
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            },
+          );
+        }),
+      );
+    },
+    onSuccess: () => {
+      toast.success("User(s) deleted successfully");
+      router.refresh(); //删除后刷新界面
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
   return (
+    // 删除按键
     <div className="rounded-md border">
       {Object.keys(rowSelection).length > 0 && (
         <div className="flex justify-end">
-          <button className="flex items-center gap-2 bg-red-500 text-white px-2 py-1 text-sm rounded-md m-4 cursor-pointer">
+          <button
+            className="flex items-center gap-2 bg-red-500 text-white px-2 py-1 text-sm rounded-md m-4 cursor-pointer"
+            onClick={() => mutation.mutate()}
+            disabled={mutation.isPending}
+          >
             <Trash2 className="w-4 h-4" />
-            Delete User(s)
+            {mutation.isPending ? "Deleting" : "Delete User(s)"}
           </button>
         </div>
       )}

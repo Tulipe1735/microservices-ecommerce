@@ -192,7 +192,7 @@ const SingleUserPage = async ({ params }: { params: { id: string } }) => {
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-bold">Phone:</span>
-                <span>{data.phoneNumbers[0]?.phoneNumber || "-"}</span>
+                <span>{data.emailAddresses[0]?.emailAddress || "-"}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-bold">Role:</span>

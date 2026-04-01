@@ -1,3 +1,4 @@
+import "dotenv/config";
 import Fastify from "fastify";
 import Clerk from "@clerk/fastify";
 import { shouldBeUser } from "./middleware/authMiddleware.js";
@@ -27,15 +28,14 @@ fastify.get("/test", { preHandler: shouldBeUser }, (request, reply) => {
 
 fastify.register(orderRoute);
 
-// 初始化 Kafka 相关服务，并启动 HTTP 服务器
 const start = async () => {
   try {
-    Promise.all([
-      await connectOrderDB(),
-      await producer.connect(),
-      await consumer.connect(),
+    await Promise.all([
+      connectOrderDB(),
+      producer.connect(),
+      consumer.connect(),
     ]);
-    await runKafkaSubscriptions(); //接受payment.successful
+    await runKafkaSubscriptions();
     await fastify.listen({ port: 8001 });
     console.log("Order service is running on port 8001");
   } catch (err) {
@@ -43,4 +43,5 @@ const start = async () => {
     process.exit(1);
   }
 };
+
 start();

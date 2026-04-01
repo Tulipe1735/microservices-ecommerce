@@ -2,9 +2,7 @@ import { consumer } from "./kafka";
 import { createStripeProduct, deleteStripeProduct } from "./stripeProduct";
 
 export const runKafkaSubscriptions = async () => {
-  // consumer订阅消息
-  consumer.subscribe([
-    // 创建产品
+  await consumer.subscribe([
     {
       topicName: "product.created",
       topicHandler: async (message) => {
@@ -14,7 +12,6 @@ export const runKafkaSubscriptions = async () => {
         await createStripeProduct(product);
       },
     },
-    // 删除产品
     {
       topicName: "product.deleted",
       topicHandler: async (message) => {

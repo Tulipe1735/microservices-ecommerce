@@ -16,7 +16,7 @@ const start = async () => {
           if (email) {
             await sendMail({
               email,
-              subject: "Welcome to E-commerce App",
+              subject: "Welcome to E-commerce App by Quality Engine",
               text: `Welcome ${username}. You account has been created!`,
             });
           }
@@ -31,7 +31,7 @@ const start = async () => {
             await sendMail({
               email,
               subject: "Order has been created",
-              text: `Hello! Your order: Amount: ${amount/100}, Status: ${status}`,
+              text: `Hello! Your order: Amount: ${amount / 100}, Status: ${status}`,
             });
           }
         },

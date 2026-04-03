@@ -48,7 +48,7 @@ const fetchData = async ({
 
   if (category) query.set("category", category);
   if (search) query.set("search", search);
-  if (params === "homepage") query.set("limits", "8");
+  if (params === "homepage") query.set("limit", "8");
 
   try {
     const res = await fetch(`${baseUrl}/products?${query.toString()}`, {

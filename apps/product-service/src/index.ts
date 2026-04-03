@@ -40,14 +40,18 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 // 初始化 Kafka 相关服务，并启动 HTTP 服务器
 const start = async () => {
+  app.listen(8000, () => {
+    console.log("Product service is running on 8000");
+  });
+
   try {
     await Promise.all([producer.connect(), consumer.connect()]);
-    app.listen(8000, () => {
-      console.log("Product service is running on 8000");
-    });
+    console.log("Kafka connected for product-service");
   } catch (error) {
-    console.log(error);
-    process.exit(1);
+    console.error(
+      "Kafka is unavailable. Product service will continue without Kafka.",
+      error,
+    );
   }
 };
 

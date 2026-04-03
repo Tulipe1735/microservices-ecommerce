@@ -3,6 +3,14 @@ import { prisma, Prisma } from "@repo/product-db";
 import { producer } from "../utils/kafka";
 import { StripeProductType } from "@repo/types";
 
+const publishProductEvent = async (topic: string, value: unknown) => {
+  try {
+    await producer.send(topic, { value });
+  } catch (error) {
+    console.error(`Failed to publish Kafka event: ${topic}`, error);
+  }
+};
+
 // 创建产品
 export const createProduct = async (req: Request, res: Response) => {
   const data: Prisma.ProductCreateInput = req.body;
@@ -22,7 +30,7 @@ export const createProduct = async (req: Request, res: Response) => {
     price: product.price,
   };
   // 给kafka发消息
-  producer.send("product.created", { value: stripeProduct });
+  await publishProductEvent("product.created", stripeProduct);
   res.status(201).json(product);
 };
 
@@ -48,7 +56,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
   });
 
   // 给kafka发消息
-  producer.send("product.deleted", { value: Number(id) });
+  await publishProductEvent("product.deleted", Number(id));
 
   return res.status(200).json(deletedProduct);
 };

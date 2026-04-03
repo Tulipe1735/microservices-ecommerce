@@ -72,20 +72,34 @@ const CardList = async ({ title }: { title: string }) => {
 
   // fetch products
   if (title === "Popular Products") {
-    products = await fetch(
-      `${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/products?limit=5&popular=true`,
-    ).then((res) => res.json());
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/products?limit=5&popular=true`,
+      );
+      const data = await res.json();
+
+      products = Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error("Failed to load popular products", error);
+    }
   }
   // fetch orders
   else {
-    orders = await fetch(
-      `${process.env.NEXT_PUBLIC_ORDER_SERVICE_URL}/orders?limit=5`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_ORDER_SERVICE_URL}/orders?limit=5`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      },
-    ).then((res) => res.json());
+      );
+      const data = await res.json();
+
+      orders = Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error("Failed to load latest transactions", error);
+    }
   }
   return (
     <div className="">

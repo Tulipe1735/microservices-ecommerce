@@ -1,9 +1,15 @@
 import { Kafka } from "kafkajs";
+import fs from "fs";
+import path from "path";
 
 export const createKafkaClient = (service: string) => {
-  // 创建kafka实例
   return new Kafka({
     clientId: service,
-    brokers: ["localhost:9094", "localhost:9095", "localhost:9096"], //kafka服务器节点
+    brokers: [process.env.KAFKA_BROKER!],
+    ssl: {
+      ca: [fs.readFileSync(path.resolve(process.env.KAFKA_SSL_CA!), "utf-8")],
+      cert: fs.readFileSync(path.resolve(process.env.KAFKA_SSL_CERT!), "utf-8"),
+      key: fs.readFileSync(path.resolve(process.env.KAFKA_SSL_KEY!), "utf-8"),
+    },
   });
 };

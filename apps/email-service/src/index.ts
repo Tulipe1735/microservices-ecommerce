@@ -1,3 +1,4 @@
+import "dotenv/config";
 import sendMail from "./utils/mailer";
 import { createConsumer, createKafkaClient } from "@repo/kafka";
 
@@ -16,8 +17,8 @@ const start = async () => {
           if (email) {
             await sendMail({
               email,
-              subject: "Welcome to E-commerce App by Quality Engine",
-              text: `Welcome ${username}. You account has been created!`,
+              subject: "Welcome to Pulse powered by Quality Engine",
+              text: `Welcome ${username}. Your account has been created!`,
             });
           }
         },

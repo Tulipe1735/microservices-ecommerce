@@ -1,9 +1,9 @@
-import EmailSignInForm from "@/components/EmailSignInForm";
+import { SignIn } from "@clerk/nextjs";
 
 export default function Page() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <EmailSignInForm />
+    <div className="flex items-center justify-center h-screen">
+      <SignIn />
     </div>
   );
 }

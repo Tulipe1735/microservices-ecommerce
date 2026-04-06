@@ -28,25 +28,32 @@ import {
 } from "@/components/ui/select";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
+import { Checkbox } from "./ui/checkbox";
 import { ScrollArea } from "./ui/scroll-area";
-import {
-  CategoryFormSchema,
-  CategoryType,
-  ProductFormSchema,
-} from "@repo/types";
+import { CategoryType, colors, ProductFormSchema, sizes } from "@repo/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { waitForDebugger } from "inspector";
 import { useAuth } from "@clerk/nextjs";
+
+// const categories = [
+//   "T-shirts",
+//   "Shoes",
+//   "Accessories",
+//   "Bags",
+//   "Dresses",
+//   "Jackets",
+//   "Gloves",
+// ] as const;
 
 const fetchCategories = async () => {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/categories`,
-  ).then((res) => res.json());
+  );
 
   if (!res.ok) {
     throw new Error("Failed to fetch categories!");
   }
+
   return await res.json();
 };
 
@@ -59,6 +66,8 @@ const AddProduct = () => {
       description: "",
       price: 0,
       categorySlug: "",
+      sizes: [],
+      colors: [],
       images: {},
     },
   });
@@ -69,7 +78,7 @@ const AddProduct = () => {
   });
 
   const { getToken } = useAuth();
-  // create mutation
+
   const mutation = useMutation({
     mutationFn: async (data: z.infer<typeof ProductFormSchema>) => {
       const token = await getToken();
@@ -85,11 +94,11 @@ const AddProduct = () => {
         },
       );
       if (!res.ok) {
-        throw new Error("Fail to create product!");
+        throw new Error("Failed to create product!");
       }
     },
     onSuccess: () => {
-      toast.success("Category created product");
+      toast.success("Product created successfully");
     },
     onError: (error) => {
       toast.error(error.message);
@@ -146,7 +155,6 @@ const AddProduct = () => {
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        {/* 总描述较长，使用Textarea */}
                         <Textarea {...field} />
                       </FormControl>
                       <FormDescription>
@@ -172,13 +180,12 @@ const AddProduct = () => {
                         />
                       </FormControl>
                       <FormDescription>
-                        Enter the price of the product
+                        Enter the price of the product.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                {/* 选择种类 */}
                 {data && (
                   <FormField
                     control={form.control}
@@ -187,7 +194,6 @@ const AddProduct = () => {
                       <FormItem>
                         <FormLabel>Category</FormLabel>
                         <FormControl>
-                          {/* 种类选择下拉框 */}
                           <Select
                             onValueChange={field.onChange}
                             value={field.value}
@@ -205,14 +211,103 @@ const AddProduct = () => {
                           </Select>
                         </FormControl>
                         <FormDescription>
-                          Enter the price of the product
+                          Enter the category of the product.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 )}
-                {/* 上传图片 */}
+                <FormField
+                  control={form.control}
+                  name="sizes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sizes</FormLabel>
+                      <FormControl>
+                        <div className="grid grid-cols-3 gap-4 my-2">
+                          {sizes.map((size) => (
+                            <div className="flex items-center gap-2" key={size}>
+                              <Checkbox
+                                id="size"
+                                checked={field.value?.includes(size)}
+                                onCheckedChange={(checked) => {
+                                  const currentValues = field.value || [];
+                                  if (checked) {
+                                    field.onChange([...currentValues, size]);
+                                  } else {
+                                    field.onChange(
+                                      currentValues.filter((v) => v !== size),
+                                    );
+                                  }
+                                }}
+                              />
+                              <label htmlFor="size" className="text-xs">
+                                {size}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </FormControl>
+                      <FormDescription>
+                        Select the available sizes for the product.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="colors"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Colors</FormLabel>
+                      <FormControl>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-3 gap-4 my-2">
+                            {colors.map((color) => (
+                              <div
+                                className="flex items-center gap-2"
+                                key={color}
+                              >
+                                <Checkbox
+                                  id="color"
+                                  checked={field.value?.includes(color)}
+                                  onCheckedChange={(checked) => {
+                                    const currentValues = field.value || [];
+                                    if (checked) {
+                                      field.onChange([...currentValues, color]);
+                                    } else {
+                                      field.onChange(
+                                        currentValues.filter(
+                                          (v) => v !== color,
+                                        ),
+                                      );
+                                    }
+                                  }}
+                                />
+                                <label
+                                  htmlFor="color"
+                                  className="text-xs flex items-center gap-2"
+                                >
+                                  <div
+                                    className="w-2 h-2 rounded-full"
+                                    style={{ backgroundColor: color }}
+                                  />
+                                  {color}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </FormControl>
+                      <FormDescription>
+                        Select the available colors for the product.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="images"
@@ -220,50 +315,75 @@ const AddProduct = () => {
                     <FormItem>
                       <FormLabel>Images</FormLabel>
                       <FormControl>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              try {
-                                const formData = new FormData();
-                                formData.append("file", file);
-                                formData.append("upload_preset", "qngecom");
+                        <div className="">
+                          {form.watch("colors")?.map((color) => (
+                            <div
+                              className="mb-4 flex items-center gap-4"
+                              key={color}
+                            >
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className="w-4 h-4 rounded-full"
+                                  style={{ backgroundColor: color }}
+                                />
+                                <span className="text-sm font-medium min-w-[80px]">
+                                  {color}:
+                                </span>
+                              </div>
+                              <Input
+                                type="file"
+                                accept="image/*"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    try {
+                                      const formData = new FormData();
+                                      formData.append("file", file);
+                                      formData.append(
+                                        "upload_preset",
+                                        "ecommerce",
+                                      );
 
-                                const res = await fetch(
-                                  `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-                                  {
-                                    method: "POST",
-                                    body: formData,
-                                  },
-                                );
-                                const data = await res.json();
-                                if (data.secure_url) {
-                                  const currentImages =
-                                    form.getValues("images") || {};
-                                  form.setValue("images", {
-                                    ...currentImages,
-                                    [`${Date.now()}_${file.name}`]:
-                                      data.secure_url,
-                                  });
-                                }
-                              } catch (err) {
-                                console.log(err);
-                                toast.error("Failed to upload");
-                              }
-                            }
-                          }}
-                        />
+                                      const res = await fetch(
+                                        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                                        {
+                                          method: "POST",
+                                          body: formData,
+                                        },
+                                      );
+                                      const data = await res.json();
+
+                                      if (data.secure_url) {
+                                        const currentImages =
+                                          form.getValues("images") || {};
+                                        form.setValue("images", {
+                                          ...currentImages,
+                                          [color]: data.secure_url,
+                                        });
+                                      }
+                                    } catch (error) {
+                                      console.log(error);
+                                      toast.error("Upload failed!");
+                                    }
+                                  }
+                                }}
+                              />
+                              {field.value?.[color] ? (
+                                <span className="text-green-600 text-sm">
+                                  Image selected
+                                </span>
+                              ) : (
+                                <span className="text-red-600 text-sm">
+                                  Image required
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </FormControl>
-                      <FormDescription>
-                        Upload one or more product images.
-                      </FormDescription>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
-                {/* 提交按钮 */}
                 <Button
                   type="submit"
                   disabled={mutation.isPending}

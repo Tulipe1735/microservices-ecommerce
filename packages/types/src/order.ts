@@ -9,3 +9,8 @@ export type OrderChartType = {
   total: number;
   successful: number;
 };
+
+export type BestSellerType = {
+  name: string;
+  quantity: number;
+};

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
+import { BestSellerType, StripeProductType } from "@repo/types";
 import { Prisma, prisma } from "@repo/product-db";
-import { StripeProductType } from "@repo/types";
 import { producer } from "../utils/redis";
 
 const publishProductEvent = async (topic: string, value: unknown) => {
@@ -11,23 +11,85 @@ const publishProductEvent = async (topic: string, value: unknown) => {
   }
 };
 
+const getPopularProducts = async (limit?: number) => {
+  const orderServiceUrl =
+    process.env.ORDER_SERVICE_URL ?? process.env.NEXT_PUBLIC_ORDER_SERVICE_URL;
+
+  if (!orderServiceUrl) {
+    return [];
+  }
+
+  const query = new URLSearchParams();
+
+  if (limit) {
+    query.set("limit", String(limit));
+  }
+
+  const response = await fetch(
+    `${orderServiceUrl}/best-sellers?${query.toString()}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch best sellers: ${response.status}`);
+  }
+
+  const bestSellers: BestSellerType[] = await response.json();
+  const bestSellerNames = bestSellers.map((item) => item.name);
+
+  if (bestSellerNames.length === 0) {
+    return [];
+  }
+
+  const products = await prisma.product.findMany({
+    where: {
+      name: {
+        in: bestSellerNames,
+      },
+    },
+  });
+
+  const productByName = new Map(
+    products.map((product) => [product.name, product]),
+  );
+
+  return bestSellerNames
+    .map((name) => productByName.get(name))
+    .filter((product): product is NonNullable<typeof product> =>
+      Boolean(product),
+    );
+};
+
+// 创建产品
 export const createProduct = async (req: Request, res: Response) => {
   const data: Prisma.ProductCreateInput = req.body;
-  const { images } = data;
+
+  const { colors, images } = data;
+  if (!colors || !Array.isArray(colors) || colors.length === 0) {
+    return res.status(400).json({ message: "Colors array is required!" });
+  }
 
   if (!images || typeof images !== "object") {
     return res.status(400).json({ message: "Images object is required!" });
   }
 
+  const missingColors = colors.filter((color) => !(color in images));
+
+  if (missingColors.length > 0) {
+    return res
+      .status(400)
+      .json({ message: "Missing images for colors!", missingColors });
+  }
+
   const product = await prisma.product.create({ data });
+
   const stripeProduct: StripeProductType = {
     id: product.id.toString(),
     name: product.name,
     price: product.price,
   };
 
-  await publishProductEvent("product.created", stripeProduct);
-  return res.status(201).json(product);
+  producer.send("product.created", { value: stripeProduct });
+  res.status(201).json(product);
 };
 
 export const updateProduct = async (req: Request, res: Response) => {
@@ -55,7 +117,17 @@ export const deleteProduct = async (req: Request, res: Response) => {
 };
 
 export const getProducts = async (req: Request, res: Response) => {
-  const { sort, category, search, limit } = req.query;
+  const { sort, category, search, limit, popular } = req.query;
+  const parsedLimit = limit ? Number(limit) : undefined;
+
+  if (popular === "true") {
+    try {
+      const popularProducts = await getPopularProducts(parsedLimit);
+      return res.status(200).json(popularProducts);
+    } catch (error) {
+      console.error("Failed to load popular products", error);
+    }
+  }
 
   const orderBy = (() => {
     switch (sort) {
@@ -81,7 +153,7 @@ export const getProducts = async (req: Request, res: Response) => {
       },
     },
     orderBy,
-    take: limit ? Number(limit) : undefined,
+    take: parsedLimit,
   });
 
   return res.status(200).json(products);

@@ -7,7 +7,7 @@ const getData = async (): Promise<ProductType[]> => {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/products`,
     );
-    const data = res.json();
+    const data = await res.json();
     return data;
   } catch (error) {
     console.log(error);

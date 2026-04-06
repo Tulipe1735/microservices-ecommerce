@@ -128,7 +128,7 @@ export const columns: ColumnDef<User>[] = [
               Copy user ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <Link href={`/users/${user.id}`}>View customer</Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

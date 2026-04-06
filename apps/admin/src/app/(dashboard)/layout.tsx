@@ -1,4 +1,3 @@
-import "./globals.css";
 import AppSidebar from "@/components/AppSidebar";
 import Navbar from "@/components/Navbar";
 import QueryProvider from "@/components/providers/QueryProvider";

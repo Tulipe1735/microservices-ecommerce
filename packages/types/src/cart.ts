@@ -3,6 +3,8 @@ import { z } from "zod";
 
 export type CartItemType = Product & {
   quantity: number;
+  selectedSize: string;
+  selectedColor: string;
 };
 
 export type CartItemsType = CartItemType[];

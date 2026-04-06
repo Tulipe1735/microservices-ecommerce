@@ -1,7 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
-import { getToken } from "@clerk/nextjs";
 import { OrderType } from "@repo/types";
 
 const getData = async (): Promise<OrderType[]> => {

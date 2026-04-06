@@ -3,7 +3,7 @@ import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
 import { shouldBeAdmin } from "./middleware/authMiddleware.js";
 import userRoute from "./routes/user.route";
-import { producer } from "./utils/kafka.js";
+import { producer } from "./utils/redis.js";
 
 const app = express();
 app.use(

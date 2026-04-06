@@ -1,13 +1,14 @@
 import { serve } from "@hono/node-server";
-import { Hono } from "hono";
 import { clerkMiddleware } from "@hono/clerk-auth";
-import sessionRoute from "./routes/session.route.js";
+import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { consumer, producer } from "./utils/kafka.js";
-import { runKafkaSubscriptions } from "./utils/subscriptions.js";
+import sessionRoute from "./routes/session.route.js";
 import webhookRoute from "./routes/webhooks.route.js";
+import { consumer, producer } from "./utils/redis.js";
+import { runRedisSubscriptions } from "./utils/subscriptions.js";
 
 const app = new Hono();
+
 app.use("*", clerkMiddleware());
 app.use("*", cors({ origin: ["http://localhost:3002"] }));
 
@@ -19,42 +20,21 @@ app.get("/health", (c) => {
   });
 });
 
-app.route("/sessions", sessionRoute); //在/session之后执行支付逻辑
+app.route("/sessions", sessionRoute);
 app.route("/webhooks", webhookRoute);
 
-// app.post("/create-stripe-product", async (c) => {
-//   const res = await stripe.products.create({
-//     id: "123",
-//     name: "Test Product",
-//     default_price_data: {
-//       currency: "usd",
-//       unit_amount: 10 * 100,
-//     },
-//   });
-
-//   return c.json(res);
-// });
-
-// app.get("/stripe-product-price", async (c) => {
-//   const res = await stripe.prices.list({
-//     product: "123",
-//   });
-
-//   return c.json(res);
-// });
-
-// 初始化 Kafka 相关服务，并启动 HTTP 服务器
 const start = async () => {
   try {
-    Promise.all([await producer.connect(), await consumer.connect()]);
-    await runKafkaSubscriptions(); //启动consumer去订阅消息,跟stripe打交道
+    await Promise.all([producer.connect(), consumer.connect()]);
+    await runRedisSubscriptions();
+
     serve(
       {
         fetch: app.fetch,
         port: 8002,
       },
-      (info) => {
-        console.log(`Payment service is running on port 8002`);
+      () => {
+        console.log("Payment service is running on port 8002");
       },
     );
   } catch (error) {
@@ -62,4 +42,5 @@ const start = async () => {
     process.exit(1);
   }
 };
+
 start();

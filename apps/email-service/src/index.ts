@@ -1,9 +1,9 @@
 import "dotenv/config";
 import sendMail from "./utils/mailer";
-import { createConsumer, createKafkaClient } from "@repo/kafka";
+import { createConsumer, createRedisClient } from "@repo/redis";
 
-const kafka = createKafkaClient("email-service");
-const consumer = createConsumer(kafka, "email-service");
+const redis = createRedisClient("email-service");
+const consumer = createConsumer(redis, "email-service");
 
 const start = async () => {
   try {

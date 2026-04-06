@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@repo/kafka": "workspace:*",
+    "@repo/redis": "workspace:*",
     "@repo/types": "workspace:*",
     "dotenv": "^17.3.1",
     "nodemailer": "^7.0.6"

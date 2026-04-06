@@ -1,12 +1,11 @@
 import { Hono } from "hono";
 import Stripe from "stripe";
 import stripe from "../utils/stripe";
-import { producer } from "../utils/kafka";
+import { producer } from "../utils/redis";
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET as string;
 const webhookRoute = new Hono();
 
-// 健康检查
 webhookRoute.get("/", (c) => {
   return c.json({
     status: "ok webhook",
@@ -15,30 +14,27 @@ webhookRoute.get("/", (c) => {
   });
 });
 
-// endpoint
 webhookRoute.post("/stripe", async (c) => {
   const body = await c.req.text();
-  const sig = c.req.header("stripe-signature"); //验证签名
+  const sig = c.req.header("stripe-signature");
 
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(body, sig!, webhookSecret); //防止伪造信息
+    event = stripe.webhooks.constructEvent(body, sig!, webhookSecret);
   } catch (error) {
     console.log("Webhook verification failed!");
     return c.json({ error: "Webhook verification failed!" }, 400);
   }
 
   switch (event.type) {
-    case "checkout.session.completed":
+    case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
-
       const lineItems = await stripe.checkout.sessions.listLineItems(
         session.id,
       );
-      // TODO: CREATE ORDER
-      // 给kafka发支付成功信息
-      producer.send("payment.successful", {
+
+      await producer.send("payment.successful", {
         value: {
           userId: session.client_reference_id,
           email: session.customer_details?.email,
@@ -53,11 +49,11 @@ webhookRoute.post("/stripe", async (c) => {
       });
 
       break;
-
+    }
     default:
       break;
   }
-  // 返回响应
+
   return c.json({ received: true });
 });
 

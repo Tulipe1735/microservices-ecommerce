@@ -14,7 +14,7 @@
   "dependencies": {
     "@clerk/express": "^1.7.30",
     "@prisma/client": "^7.5.0",
-    "@repo/kafka": "workspace:*",
+    "@repo/redis": "workspace:*",
     "@repo/product-db": "workspace:*",
     "cors": "^2.8.5",
     "express": "^5.1.0"

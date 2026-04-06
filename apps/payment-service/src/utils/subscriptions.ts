@@ -1,7 +1,7 @@
-import { consumer } from "./kafka";
+import { consumer } from "./redis";
 import { createStripeProduct, deleteStripeProduct } from "./stripeProduct";
 
-export const runKafkaSubscriptions = async () => {
+export const runRedisSubscriptions = async () => {
   await consumer.subscribe([
     {
       topicName: "product.created",

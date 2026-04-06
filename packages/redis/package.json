@@ -1,5 +1,5 @@
 {
-  "name": "@repo/kafka",
+  "name": "@repo/redis",
   "version": "0.0.1",
   "main": "./src/index.ts",
   "type": "module",
@@ -11,6 +11,6 @@
     "@types/node": "^24.3.1"
   },
   "dependencies": {
-    "kafkajs": "^2.2.4"
+    "redis": "^5.8.2"
   }
 }

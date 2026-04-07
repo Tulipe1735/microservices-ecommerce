@@ -341,7 +341,7 @@ const AddProduct = () => {
                                       formData.append("file", file);
                                       formData.append(
                                         "upload_preset",
-                                        "ecommerce",
+                                        "qngecom",
                                       );
 
                                       const res = await fetch(

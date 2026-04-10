@@ -1,5 +1,4 @@
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
@@ -47,7 +46,6 @@ export default function RootLayout({
           <div className="mx-auto flex min-h-screen flex-col p-4 sm:max-w-xl sm:px-0 md:max-w-2xl lg:max-w-3xl xl:max-w-6xl">
             <Navbar />
             <main className="flex-grow">{children}</main>
-            <Footer />
           </div>
           <ToastContainer position="bottom-right" />
         </body>

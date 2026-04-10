@@ -22,10 +22,8 @@ import { DataTablePagination } from "@/components/TablePagination";
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
-import { CategoryFormSchema } from "@repo/types";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import z from "zod";
 import { User } from "@clerk/nextjs/server";
 import { useRouter } from "next/navigation";
 
@@ -57,13 +55,13 @@ export function DataTable<TData, TValue>({
 
   const { getToken } = useAuth();
   const router = useRouter();
-  // create mutation
+
   const mutation = useMutation({
     mutationFn: async () => {
       const token = await getToken();
       const selectedRows = table.getSelectedRowModel().rows;
 
-      Promise.all(
+      await Promise.all(
         selectedRows.map(async (row) => {
           const userId = (row.original as User).id;
 
@@ -71,19 +69,22 @@ export function DataTable<TData, TValue>({
             `${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/users/${userId}`,
             {
               method: "DELETE",
-              body: JSON.stringify(data),
               headers: {
-                "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
             },
           );
+
+          if (!res.ok) {
+            throw new Error(`Failed to delete user ${userId}`);
+          }
         }),
       );
     },
     onSuccess: () => {
       toast.success("User(s) deleted successfully");
-      router.refresh(); //删除后刷新界面
+      setRowSelection({});
+      router.refresh();
     },
     onError: (error) => {
       toast.error(error.message);
@@ -91,12 +92,11 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    // 删除按键
     <div className="rounded-md border">
       {Object.keys(rowSelection).length > 0 && (
         <div className="flex justify-end">
           <button
-            className="flex items-center gap-2 bg-red-500 text-white px-2 py-1 text-sm rounded-md m-4 cursor-pointer"
+            className="flex items-center gap-2 bg-red-500 text-white px-2 py-1 text-sm rounded-md m-4 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
             onClick={() => mutation.mutate()}
             disabled={mutation.isPending}
           >

@@ -5,6 +5,7 @@ import localFont from "next/font/local";
 import React from "react";
 import { ToastContainer } from "react-toastify";
 import "./globals.css";
+import { cn } from "@/lib/utils";
 
 const poppins = localFont({
   src: [
@@ -25,7 +26,7 @@ const poppins = localFont({
     { path: "./fonts/Poppins-Bold.ttf", weight: "700", style: "normal" },
     { path: "./fonts/Poppins-BoldItalic.ttf", weight: "700", style: "italic" },
   ],
-  variable: "--font-geist-sans",
+  variable: "--font-sans",
   display: "swap",
 });
 
@@ -41,7 +42,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
+      <html lang="en" suppressHydrationWarning className={cn("font-sans", poppins.variable)}>
         <body className={`${poppins.variable} antialiased`}>
           <div className="mx-auto flex min-h-screen flex-col p-4 sm:max-w-xl sm:px-0 md:max-w-2xl lg:max-w-3xl xl:max-w-6xl">
             <Navbar />

@@ -59,7 +59,9 @@ const fetchData = async ({
     });
 
     if (!res.ok) {
-      console.error(`Failed to fetch products: ${res.status} ${res.statusText}`);
+      console.error(
+        `Failed to fetch products: ${res.status} ${res.statusText}`,
+      );
       return [];
     }
 
@@ -89,7 +91,7 @@ const ProductList = async ({
     <div className="w-full">
       <Categories />
       {params === "products" && <Filter />}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-12">
+      <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {products.map((product) => {
           return <ProductCard key={product.id} product={product} />;
         })}

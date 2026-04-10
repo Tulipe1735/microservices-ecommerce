@@ -62,48 +62,59 @@ export const orderRoute = async (fastify: FastifyInstance) => {
       return reply.send(orders);
     },
   );
-  fastify.get(
-    "/best-sellers",
+  fastify.delete(
+    "/orders/:id",
+    { preHandler: shouldBeAdmin },
     async (request, reply) => {
-      const { limit } = request.query as { limit?: string | number };
-      const parsedLimit = Number(limit ?? 5);
-      const safeLimit = Number.isFinite(parsedLimit)
-        ? Math.max(1, Math.min(parsedLimit, 20))
-        : 5;
+      const { id } = request.params as { id: string };
+      const deletedOrder = await Order.findByIdAndDelete(id);
 
-      const bestSellers = await Order.aggregate<BestSellerType>([
-        {
-          $match: {
-            status: "success",
-          },
-        },
-        {
-          $unwind: "$products",
-        },
-        {
-          $group: {
-            _id: "$products.name",
-            quantity: { $sum: "$products.quantity" },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            name: "$_id",
-            quantity: 1,
-          },
-        },
-        {
-          $sort: { quantity: -1, name: 1 },
-        },
-        {
-          $limit: safeLimit,
-        },
-      ]);
+      if (!deletedOrder) {
+        return reply.status(404).send({ message: "Order not found." });
+      }
 
-      return reply.send(bestSellers);
+      return reply.send(deletedOrder);
     },
   );
+  fastify.get("/best-sellers", async (request, reply) => {
+    const { limit } = request.query as { limit?: string | number };
+    const parsedLimit = Number(limit ?? 5);
+    const safeLimit = Number.isFinite(parsedLimit)
+      ? Math.max(1, Math.min(parsedLimit, 20))
+      : 5;
+
+    const bestSellers = await Order.aggregate<BestSellerType>([
+      {
+        $match: {
+          status: "success",
+        },
+      },
+      {
+        $unwind: "$products",
+      },
+      {
+        $group: {
+          _id: "$products.name",
+          quantity: { $sum: "$products.quantity" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          name: "$_id",
+          quantity: 1,
+        },
+      },
+      {
+        $sort: { quantity: -1, name: 1 },
+      },
+      {
+        $limit: safeLimit,
+      },
+    ]);
+
+    return reply.send(bestSellers);
+  });
   // get last 6 months orders
   fastify.get(
     "/order-chart",

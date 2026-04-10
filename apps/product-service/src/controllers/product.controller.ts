@@ -142,15 +142,21 @@ export const getProducts = async (req: Request, res: Response) => {
     }
   })();
 
+  const normalizedCategory =
+    typeof category === "string" && category !== "all" ? category : undefined;
+  const normalizedSearch = typeof search === "string" ? search : undefined;
+
   const products = await prisma.product.findMany({
     where: {
-      category: {
-        slug: category as string,
-      },
-      name: {
-        contains: search as string,
-        mode: "insensitive",
-      },
+      ...(normalizedCategory ? { categorySlug: normalizedCategory } : {}),
+      ...(normalizedSearch
+        ? {
+            name: {
+              contains: normalizedSearch,
+              mode: "insensitive",
+            },
+          }
+        : {}),
     },
     orderBy,
     take: parsedLimit,

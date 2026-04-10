@@ -1,8 +1,19 @@
 import { Order } from "@repo/order-db";
-import { OrderType } from "@repo/types";
 import { producer } from "./redis";
 
-export const createOrder = async (order: OrderType) => {
+type CreateOrderInput = {
+  userId: string;
+  email: string;
+  amount: number;
+  status: "pending" | "processing" | "success" | "failed";
+  products: {
+    name: string;
+    quantity: number;
+    price: number;
+  }[];
+};
+
+export const createOrder = async (order: CreateOrderInput) => {
   const newOrder = new Order(order);
 
   try {

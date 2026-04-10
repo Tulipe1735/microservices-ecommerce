@@ -163,7 +163,7 @@ const AppSidebar = () => {
                 <SidebarMenuButton asChild>
                   <Link href="/orders">
                     <ShoppingBasket />
-                    See all Transactions
+                    See all Orders
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

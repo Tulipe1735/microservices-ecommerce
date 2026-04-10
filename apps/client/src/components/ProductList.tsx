@@ -48,7 +48,7 @@ const fetchData = async ({
     sort: sort || "newest",
   });
 
-  if (category) query.set("category", category);
+  if (category && category !== "all") query.set("category", category);
   if (search) query.set("search", search);
   if (params === "homepage") query.set("limit", "8");
   if (popular) query.set("popular", "true");

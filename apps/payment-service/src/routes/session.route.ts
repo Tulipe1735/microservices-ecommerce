@@ -10,23 +10,30 @@ sessionRoute.post("/create-checkout-session", shouldBeUser, async (c) => {
   const { cart }: { cart: CartItemsType } = await c.req.json();
   const userId = c.get("userId");
 
-  const lineItems = await Promise.all(
-    cart.map(async (item) => {
-      const unitAmount = await getStripeProductPrice(item.id);
-      return {
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name: item.name,
-          },
-          unit_amount: unitAmount as number,
-        },
-        quantity: item.quantity,
-      };
-    }),
-  );
-
   try {
+    const lineItems = await Promise.all(
+      cart.map(async (item) => {
+        const unitAmount = await getStripeProductPrice(item.id);
+
+        if (!unitAmount) {
+          throw new Error(
+            `Stripe price not found for product "${item.name}" (id: ${item.id}).`,
+          );
+        }
+
+        return {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: item.name,
+            },
+            unit_amount: unitAmount,
+          },
+          quantity: item.quantity,
+        };
+      }),
+    );
+
     const session = await stripe.checkout.sessions.create({
       line_items: lineItems,
       client_reference_id: userId,
@@ -41,7 +48,12 @@ sessionRoute.post("/create-checkout-session", shouldBeUser, async (c) => {
     return c.json({ checkoutSessionClientSecret: session.client_secret });
   } catch (error) {
     console.log(error);
-    return c.json({ error });
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Failed to create checkout session.";
+
+    return c.json({ message }, 500);
   }
 });
 

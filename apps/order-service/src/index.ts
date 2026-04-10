@@ -9,6 +9,23 @@ import { runRedisSubscriptions } from "./utils/subscriptions.js";
 
 const fastify = Fastify();
 
+fastify.addHook("onRequest", async (request, reply) => {
+  const origin = request.headers.origin;
+  const allowedOrigins = ["http://localhost:3002", "http://localhost:3003"];
+
+  if (origin && allowedOrigins.includes(origin)) {
+    reply.header("Access-Control-Allow-Origin", origin);
+  }
+
+  reply.header("Access-Control-Allow-Credentials", "true");
+  reply.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  reply.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (request.method === "OPTIONS") {
+    return reply.status(204).send();
+  }
+});
+
 fastify.register(Clerk.clerkPlugin);
 
 fastify.get("/health", (request, reply) => {

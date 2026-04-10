@@ -1,7 +1,12 @@
 import mongoose, { InferSchemaType, model } from "mongoose";
 const { Schema } = mongoose;
 
-export const OrderStatus = ["success", "failed"] as const;
+export const OrderStatus = [
+  "pending",
+  "processing",
+  "success",
+  "failed",
+] as const;
 
 const OrderSchema = new Schema(
   {

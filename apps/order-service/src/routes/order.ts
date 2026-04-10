@@ -2,10 +2,49 @@ import { FastifyInstance } from "fastify";
 import { shouldBeAdmin, shouldBeUser } from "../middleware/authMiddleware";
 import { Order } from "@repo/order-db";
 import { startOfMonth, subMonths } from "date-fns";
-import { BestSellerType, OrderChartType } from "@repo/types";
+import {
+  BestSellerType,
+  OrderChartType,
+  OrderFormSchema,
+  OrderFormType,
+} from "@repo/types";
+import { createOrder } from "../utils/order";
 
 // fetch orders
 export const orderRoute = async (fastify: FastifyInstance) => {
+  fastify.post(
+    "/orders",
+    { preHandler: shouldBeAdmin },
+    async (request, reply) => {
+      const parsed = OrderFormSchema.safeParse(request.body);
+
+      if (!parsed.success) {
+        return reply.status(400).send({
+          message: "Invalid order payload.",
+          errors: parsed.error.flatten(),
+        });
+      }
+
+      const data: OrderFormType = parsed.data;
+
+      await createOrder({
+        userId: data.userId,
+        email: data.email,
+        amount: data.amount,
+        status: data.status,
+        products: [
+          {
+            name: data.productName,
+            quantity: data.quantity,
+            price: data.amount,
+          },
+        ],
+      });
+
+      return reply.status(201).send({ message: "Order created successfully." });
+    },
+  );
+
   fastify.get(
     "/user-orders",
     { preHandler: shouldBeUser }, //这里有个中间件，登录才能用这个功能

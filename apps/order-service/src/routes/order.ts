@@ -4,11 +4,50 @@ import { Order } from "@repo/order-db";
 import { startOfMonth, subMonths } from "date-fns";
 import {
   BestSellerType,
+  CreateOrderSchema,
+  CreateOrderType,
   OrderChartType,
-  OrderFormSchema,
-  OrderFormType,
 } from "@repo/types";
 import { createOrder } from "../utils/order";
+
+const getProductPriceByName = async (productName: string) => {
+  const productServiceUrl =
+    process.env.PRODUCT_SERVICE_URL?.trim() ??
+    process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL?.trim();
+
+  if (!productServiceUrl) {
+    throw new Error("PRODUCT_SERVICE_URL is not configured.");
+  }
+
+  const query = new URLSearchParams({
+    search: productName,
+  });
+
+  const response = await fetch(
+    `${productServiceUrl}/products?${query.toString()}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch product details for "${productName}".`);
+  }
+
+  const products = (await response.json()) as Array<{
+    name: string;
+    price: number;
+  }>;
+
+  const normalizedProductName = productName.trim().toLowerCase();
+  const matchedProduct =
+    products.find(
+      (product) => product.name.trim().toLowerCase() === normalizedProductName,
+    ) ?? products[0];
+
+  if (!matchedProduct) {
+    throw new Error(`Product "${productName}" not found.`);
+  }
+
+  return matchedProduct.price;
+};
 
 // fetch orders
 export const orderRoute = async (fastify: FastifyInstance) => {
@@ -16,7 +55,7 @@ export const orderRoute = async (fastify: FastifyInstance) => {
     "/orders",
     { preHandler: shouldBeAdmin },
     async (request, reply) => {
-      const parsed = OrderFormSchema.safeParse(request.body);
+      const parsed = CreateOrderSchema.safeParse(request.body);
 
       if (!parsed.success) {
         return reply.status(400).send({
@@ -25,18 +64,21 @@ export const orderRoute = async (fastify: FastifyInstance) => {
         });
       }
 
-      const data: OrderFormType = parsed.data;
+      const data: CreateOrderType = parsed.data;
+      const unitPrice = await getProductPriceByName(data.productName);
+      const amount = unitPrice * data.quantity;
 
       await createOrder({
         userId: data.userId,
+        username: data.username,
         email: data.email,
-        amount: data.amount,
+        amount,
         status: data.status,
         products: [
           {
             name: data.productName,
             quantity: data.quantity,
-            price: data.amount,
+            price: unitPrice,
           },
         ],
       });

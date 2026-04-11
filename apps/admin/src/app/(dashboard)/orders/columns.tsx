@@ -49,6 +49,14 @@ export const columns: ColumnDef<OrderType>[] = [
     header: "ID",
   },
   {
+    accessorKey: "username",
+    header: "Username",
+    cell: ({ row }) => {
+      const order = row.original;
+      return <div>{order.username || "-"}</div>;
+    },
+  },
+  {
     accessorKey: "email",
     header: ({ column }) => {
       return (
@@ -86,11 +94,16 @@ export const columns: ColumnDef<OrderType>[] = [
     accessorKey: "amount",
     header: () => <div className="text-right">Amount</div>,
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
+      const order = row.original;
+      const amount =
+        order.products?.reduce(
+          (sum, product) => sum + product.price * product.quantity,
+          0,
+        ) ?? parseFloat(row.getValue("amount"));
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
-      }).format(amount / 100);
+      }).format(amount);
 
       return <div className="text-right font-medium">{formatted}</div>;
     },

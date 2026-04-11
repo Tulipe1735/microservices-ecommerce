@@ -6,7 +6,6 @@ const fetchOrders = async () => {
   const { getToken } = await auth();
   const token = await getToken();
 
-  // user-orders界面
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_ORDER_SERVICE_URL}/user-orders`,
     {
@@ -21,6 +20,10 @@ const fetchOrders = async () => {
 
 const OrdersPage = async () => {
   const orders = await fetchOrders();
+  const currencyFormatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
 
   if (!orders) {
     return <div className="">No orders found!</div>;
@@ -30,43 +33,51 @@ const OrdersPage = async () => {
     <div>
       <h1 className="text-2xl my-4 font-medium">Your Orders</h1>
       <ul>
-        {orders.map((order) => (
-          <li key={order._id} className="flex items-center mb-4">
-            <div className="">
-              <span className="font-medium text-sm text-gray-500">
-                Order ID
-              </span>
-              <p>{order._id}</p>
-            </div>
-            <div className="w-1/12">
-              <span className="font-medium text-sm text-gray-500">Total</span>
-              <p>{order.amount / 100}</p>
-            </div>
-            <div className="w-1/12">
-              <span className="font-medium text-sm text-gray-500">
-                Order status
-              </span>
-              <p>{order.status}</p>
-            </div>
-            <div className="w-1/8">
-              <span className="font-medium text-sm text-gray-500">Date</span>
-              <p>
-                {order.createdAt
-                  ? new Date(order.createdAt).toLocaleDateString("zh-CN") //指定中国时间
-                  : "-"}
-              </p>
-            </div>
-            <div className="">
-              <span className="font-medium text-sm text-gray-500">
-                Products
-              </span>
-              <p>
-                {order.products?.map((product) => product.name).join(", ") ||
-                  "-"}
-              </p>
-            </div>
-          </li>
-        ))}
+        {orders.map((order) => {
+          const total =
+            order.products?.reduce(
+              (sum, product) => sum + product.price * product.quantity,
+              0,
+            ) ?? order.amount;
+
+          return (
+            <li key={order._id} className="flex items-center mb-4">
+              <div className="">
+                <span className="font-medium text-sm text-gray-500">
+                  Order ID
+                </span>
+                <p>{order._id}</p>
+              </div>
+              <div className="w-1/12">
+                <span className="font-medium text-sm text-gray-500">Total</span>
+                <p>{currencyFormatter.format(total)}</p>
+              </div>
+              <div className="w-1/12">
+                <span className="font-medium text-sm text-gray-500">
+                  Order status
+                </span>
+                <p>{order.status}</p>
+              </div>
+              <div className="w-1/8">
+                <span className="font-medium text-sm text-gray-500">Date</span>
+                <p>
+                  {order.createdAt
+                    ? new Date(order.createdAt).toLocaleDateString("zh-CN")
+                    : "-"}
+                </p>
+              </div>
+              <div className="">
+                <span className="font-medium text-sm text-gray-500">
+                  Products
+                </span>
+                <p>
+                  {order.products?.map((product) => product.name).join(", ") ||
+                    "-"}
+                </p>
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

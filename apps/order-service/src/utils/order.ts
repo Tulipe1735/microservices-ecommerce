@@ -3,6 +3,7 @@ import { producer } from "./redis";
 
 type CreateOrderInput = {
   userId: string;
+  username: string;
   email: string;
   amount: number;
   status: "pending" | "processing" | "success" | "failed";

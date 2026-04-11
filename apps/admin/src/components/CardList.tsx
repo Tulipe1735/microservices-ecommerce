@@ -66,6 +66,10 @@ import { auth } from "@clerk/nextjs/server";
 const CardList = async ({ title }: { title: string }) => {
   let products: ProductsType = [];
   let orders: OrderType[] = [];
+  const currencyFormatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
 
   const { getToken } = await auth();
   const token = await getToken();
@@ -131,20 +135,30 @@ const CardList = async ({ title }: { title: string }) => {
                 <CardFooter className="p-0">${item.price}</CardFooter>
               </Card>
             ))
-          : orders.map((item) => (
-              <Card
-                key={item._id}
-                className="flex-row items-center justify-between gap-4 p-4"
-              >
-                <CardContent className="flex-1 p-0">
-                  <CardTitle className="text-sm font-medium">
-                    {item.email}
-                  </CardTitle>
-                  <Badge variant="secondary">{item.status}</Badge>
-                </CardContent>
-                <CardFooter className="p-0">${item.amount / 100}</CardFooter>
-              </Card>
-            ))}
+          : orders.map((item) => {
+              const total =
+                item.products?.reduce(
+                  (sum, product) => sum + product.price * product.quantity,
+                  0,
+                ) ?? item.amount;
+
+              return (
+                <Card
+                  key={item._id}
+                  className="flex-row items-center justify-between gap-4 p-4"
+                >
+                  <CardContent className="flex-1 p-0">
+                    <CardTitle className="text-sm font-medium">
+                      {item.username || item.email}
+                    </CardTitle>
+                    <Badge variant="secondary">{item.status}</Badge>
+                  </CardContent>
+                  <CardFooter className="p-0">
+                    {currencyFormatter.format(total)}
+                  </CardFooter>
+                </Card>
+              );
+            })}
       </div>
     </div>
   );

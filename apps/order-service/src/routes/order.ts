@@ -104,6 +104,35 @@ export const orderRoute = async (fastify: FastifyInstance) => {
       return reply.send(orders);
     },
   );
+  // 客户删除
+  fastify.delete(
+    "/user-orders/:id",
+    { preHandler: shouldBeUser },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+
+      const order = await Order.findById(id);
+
+      if (!order) {
+        return reply.status(404).send({ message: "Order not found." });
+      }
+
+      // 只能删自己的
+      if (order.userId !== request.userId) {
+        return reply.status(403).send({ message: "Forbidden." });
+      }
+
+      // 48小时限制
+      const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
+      if (Date.now() - new Date(order.createdAt).getTime() > TWO_DAYS_MS) {
+        return reply.status(400).send({ message: "Delete window expired." });
+      }
+
+      await Order.findByIdAndDelete(id);
+      return reply.send({ message: "Order deleted." });
+    },
+  );
+  // admin删除
   fastify.delete(
     "/orders/:id",
     { preHandler: shouldBeAdmin },

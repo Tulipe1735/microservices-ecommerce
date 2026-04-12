@@ -1,84 +1,36 @@
+import { OrdersClient } from "@/components/OrdersClient";
 import { auth } from "@clerk/nextjs/server";
 import { OrderType } from "@repo/types";
-import React from "react";
 
-const fetchOrders = async () => {
-  const { getToken } = await auth();
-  const token = await getToken();
-
+const fetchOrders = async (token: string): Promise<OrderType[]> => {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_ORDER_SERVICE_URL}/user-orders`,
     {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     },
   );
-  const data: OrderType[] = await res.json();
-  return data;
+
+  if (!res.ok) return [];
+  return res.json();
 };
 
 const OrdersPage = async () => {
-  const orders = await fetchOrders();
-  const currencyFormatter = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  });
-
-  if (!orders) {
-    return <div className="">No orders found!</div>;
-  }
+  const { getToken } = await auth();
+  const token = (await getToken()) ?? "";
+  const orders = await fetchOrders(token);
 
   return (
-    <div>
-      <h1 className="text-2xl my-4 font-medium">Your Orders</h1>
-      <ul>
-        {orders.map((order) => {
-          const total =
-            order.products?.reduce(
-              (sum, product) => sum + product.price * product.quantity,
-              0,
-            ) ?? order.amount;
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
+          Your Orders
+        </h1>
+        <p className="text-sm text-gray-400 mt-1">
+          {orders.length} order{orders.length !== 1 ? "s" : ""} total
+        </p>
+      </div>
 
-          return (
-            <li key={order._id} className="flex items-center mb-4">
-              <div className="">
-                <span className="font-medium text-sm text-gray-500">
-                  Order ID
-                </span>
-                <p>{order._id}</p>
-              </div>
-              <div className="w-1/12">
-                <span className="font-medium text-sm text-gray-500">Total</span>
-                <p>{currencyFormatter.format(total)}</p>
-              </div>
-              <div className="w-1/12">
-                <span className="font-medium text-sm text-gray-500">
-                  Order status
-                </span>
-                <p>{order.status}</p>
-              </div>
-              <div className="w-1/8">
-                <span className="font-medium text-sm text-gray-500">Date</span>
-                <p>
-                  {order.createdAt
-                    ? new Date(order.createdAt).toLocaleDateString("zh-CN")
-                    : "-"}
-                </p>
-              </div>
-              <div className="">
-                <span className="font-medium text-sm text-gray-500">
-                  Products
-                </span>
-                <p>
-                  {order.products?.map((product) => product.name).join(", ") ||
-                    "-"}
-                </p>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+      <OrdersClient initialOrders={orders} token={token} />
     </div>
   );
 };

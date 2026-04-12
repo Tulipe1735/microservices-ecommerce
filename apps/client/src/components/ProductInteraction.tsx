@@ -41,6 +41,16 @@ const ProductInteraction = ({
     }
   };
 
+  const handleBuyNow = () => {
+    const params = new URLSearchParams({
+      productId: String(product.id),
+      quantity: String(quantity),
+      selectedColor,
+      selectedSize,
+    });
+    router.push(`/checkout?${params.toString()}`);
+  };
+
   const handleAddToCart = () => {
     addToCart({
       ...product,
@@ -133,7 +143,10 @@ const ProductInteraction = ({
         <Plus className="w-4 h-4" />
         Add to Cart
       </button>
-      <button className="ring-1 ring-gray-400 shadow-lg text-gray-800 px-4 py-2 rounded-md flex items-center justify-center cursor-pointer gap-2 text-sm font-medium">
+      <button
+        onClick={handleBuyNow}
+        className="ring-1 ring-gray-400 shadow-lg text-gray-800 px-4 py-2 rounded-md flex items-center justify-center cursor-pointer gap-2 text-sm font-medium"
+      >
         <ShoppingCart className="w-4 h-4" />
         Buy this Item
       </button>

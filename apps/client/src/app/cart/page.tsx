@@ -209,9 +209,14 @@ const CartPage = () => {
               <p className="text-gray-800 font-semibold">Total</p>
               <p className="font-medium">
                 $
-                {cart
-                  .reduce((acc, item) => acc + item.price * item.quantity, 0)
-                  .toFixed(2)}
+                {(
+                  cart.reduce(
+                    (acc, item) => acc + item.price * item.quantity,
+                    0,
+                  ) *
+                    0.9 +
+                  10
+                ).toFixed(2)}
               </p>
             </div>
           </div>

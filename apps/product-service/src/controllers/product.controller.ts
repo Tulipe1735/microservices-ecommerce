@@ -117,17 +117,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
 };
 
 export const getProducts = async (req: Request, res: Response) => {
-  const { sort, category, search, limit, popular } = req.query;
-  const parsedLimit = limit ? Number(limit) : undefined;
-
-  if (popular === "true") {
-    try {
-      const popularProducts = await getPopularProducts(parsedLimit);
-      return res.status(200).json(popularProducts);
-    } catch (error) {
-      console.error("Failed to load popular products", error);
-    }
-  }
+  const { sort, category, search } = req.query;
 
   const orderBy = (() => {
     switch (sort) {
@@ -159,7 +149,6 @@ export const getProducts = async (req: Request, res: Response) => {
         : {}),
     },
     orderBy,
-    take: parsedLimit,
   });
 
   return res.status(200).json(products);

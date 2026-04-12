@@ -1,55 +1,56 @@
 "use client";
 import {
-  Footprints,
-  Glasses,
-  Briefcase,
-  Shirt,
-  ShoppingBasket,
-  Hand,
-  Venus,
-} from "lucide-react";
+  CoatHanger,
+  ShoppingBagOpenIcon,
+  HoodieIcon,
+  BaseballCapIcon,
+  SockIcon,
+  SneakerMoveIcon,
+  TShirtIcon,
+  PantsIcon,
+} from "@phosphor-icons/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const categories = [
   {
     name: "All",
-    icon: <ShoppingBasket className="w-4 h-4" />,
+    icon: <ShoppingBagOpenIcon className="w-4 h-4" />,
     slug: "all",
   },
   {
+    name: "Suits",
+    icon: <CoatHanger className="w-4 h-4" />,
+    slug: "suits",
+  },
+  {
     name: "T-shirts",
-    icon: <Shirt className="w-4 h-4" />,
+    icon: <TShirtIcon className="w-4 h-4" />,
     slug: "t-shirts",
   },
   {
+    name: "Pants",
+    icon: <PantsIcon className="w-4 h-4" />,
+    slug: "pants",
+  },
+  {
+    name: "Hoodies",
+    icon: <HoodieIcon className="w-4 h-4" />,
+    slug: "hoodies",
+  },
+  {
     name: "Shoes",
-    icon: <Footprints className="w-4 h-4" />,
+    icon: <SneakerMoveIcon className="w-4 h-4" />,
     slug: "shoes",
   },
   {
-    name: "Accessories",
-    icon: <Glasses className="w-4 h-4" />,
-    slug: "accessories",
+    name: "Caps",
+    icon: <BaseballCapIcon className="w-4 h-4" />,
+    slug: "caps",
   },
   {
-    name: "Bags",
-    icon: <Briefcase className="w-4 h-4" />,
-    slug: "bags",
-  },
-  {
-    name: "Dresses",
-    icon: <Venus className="w-4 h-4" />,
-    slug: "dresses",
-  },
-  {
-    name: "Jackets",
-    icon: <Shirt className="w-4 h-4" />,
-    slug: "jackets",
-  },
-  {
-    name: "Gloves",
-    icon: <Hand className="w-4 h-4" />,
-    slug: "gloves",
+    name: "Socks",
+    icon: <SockIcon className="w-4 h-4" />,
+    slug: "socks",
   },
 ];
 

@@ -1,51 +1,28 @@
 import { Hono } from "hono";
-import stripe from "../utils/stripe";
-import { shouldBeUser } from "../middleware/authMiddleware";
+import { shouldBeUser } from "../middleware/authMiddleware.js";
 import { CartItemsType } from "@repo/types";
-import { getStripeProductPrice } from "../utils/stripeProduct";
+import { createPaymeUrl } from "../utils/payme.js";
 
 const sessionRoute = new Hono();
 
+// 创建支付 URL（替代原来的 Stripe checkout session）
 sessionRoute.post("/create-checkout-session", shouldBeUser, async (c) => {
   const { cart }: { cart: CartItemsType } = await c.req.json();
   const userId = c.get("userId");
 
   try {
-    const lineItems = await Promise.all(
-      cart.map(async (item) => {
-        const unitAmount = await getStripeProductPrice(item.id);
-
-        if (!unitAmount) {
-          throw new Error(
-            `Stripe price not found for product "${item.name}" (id: ${item.id}).`,
-          );
-        }
-
-        return {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: item.name,
-            },
-            unit_amount: unitAmount,
-          },
-          quantity: item.quantity,
-        };
-      }),
+    // 计算总金额（单位：UZS）
+    // 注意：你的 cart item price 如果是 USD，需要先换算成 UZS
+    const totalUZS = cart.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0,
     );
 
-    const session = await stripe.checkout.sessions.create({
-      line_items: lineItems,
-      client_reference_id: userId,
-      mode: "payment",
-      ui_mode: "custom",
-      return_url:
-        "http://localhost:3002/return?session_id={CHECKOUT_SESSION_ID}",
-    });
+    const orderId = `order_${userId}_${Date.now()}`;
 
-    // console.log(session);
+    const paymentUrl = createPaymeUrl(orderId, totalUZS);
 
-    return c.json({ checkoutSessionClientSecret: session.client_secret });
+    return c.json({ paymentUrl, orderId });
   } catch (error) {
     console.log(error);
     const message =
@@ -57,21 +34,17 @@ sessionRoute.post("/create-checkout-session", shouldBeUser, async (c) => {
   }
 });
 
-// 后端根据 session_id查询支付结果
-sessionRoute.get("/:session_id", async (c) => {
-  const { session_id } = c.req.param();
-  const session = await stripe.checkout.sessions.retrieve(
-    session_id as string,
-    {
-      expand: ["line_items"],
-    },
-  );
+// 根据 orderId 查询支付状态（从数据库查，不再依赖 Stripe）
+sessionRoute.get("/:order_id", async (c) => {
+  const { order_id } = c.req.param();
 
-  // console.log(session);
+  // TODO: 从你的数据库查询该订单的支付状态
+  // 例如：const order = await db.order.findUnique({ where: { id: order_id } });
+  // Payme 回调成功后会把状态写入数据库（在 webhooks.route.ts 里处理）
 
   return c.json({
-    status: session.status,
-    paymentStatus: session.payment_status,
+    orderId: order_id,
+    status: "pending", // 从 db 查：'pending' | 'paid' | 'cancelled'
   });
 });
 

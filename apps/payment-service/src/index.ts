@@ -3,7 +3,7 @@ import { clerkMiddleware } from "@hono/clerk-auth";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import sessionRoute from "./routes/session.route.js";
-import webhookRoute from "./routes/webhooks.route.js";
+import webhookRoute from "./routes/webhooks.route.js"; // 改成 payme 回调，但文件名不变
 import { consumer, producer } from "./utils/redis.js";
 import { runRedisSubscriptions } from "./utils/subscriptions.js";
 
@@ -21,7 +21,7 @@ app.get("/health", (c) => {
 });
 
 app.route("/sessions", sessionRoute);
-app.route("/webhooks", webhookRoute);
+app.route("/payme", webhookRoute); // ← 只改这里，"/webhooks" → "/payme"
 
 const start = async () => {
   try {

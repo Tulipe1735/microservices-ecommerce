@@ -22,7 +22,7 @@ importers:
     dependencies:
       '@clerk/nextjs':
         specifier: ^7.0.6
-        version: 7.0.6(next@15.4.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 7.0.6(next@15.4.5(@babel/core@7.29.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@hookform/resolvers':
         specifier: ^5.0.1
         version: 5.2.2(react-hook-form@7.72.0(react@19.1.0))
@@ -186,7 +186,7 @@ importers:
     dependencies:
       '@clerk/nextjs':
         specifier: ^7.0.6
-        version: 7.0.6(next@15.4.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 7.0.6(next@15.4.5(@babel/core@7.29.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.72.0(react@19.1.0))
@@ -475,6 +475,28 @@ importers:
       '@types/node':
         specifier: ^24.3.1
         version: 24.3.1
+
+  packages/payment-db:
+    dependencies:
+      '@prisma/client':
+        specifier: '5'
+        version: 5.22.0(prisma@5.22.0)
+      prisma:
+        specifier: '5'
+        version: 5.22.0
+    devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/dotenv':
+        specifier: ^8.2.3
+        version: 8.2.3
+      '@types/node':
+        specifier: ^24.5.2
+        version: 24.5.2
+      dotenv:
+        specifier: ^17.3.1
+        version: 17.3.1
 
   packages/product-db:
     dependencies:
@@ -6425,7 +6447,7 @@ snapshots:
       - react
       - react-dom
 
-  '@clerk/nextjs@7.0.6(next@15.4.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@clerk/nextjs@7.0.6(next@15.4.5(@babel/core@7.29.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@clerk/backend': 3.2.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@clerk/react': 6.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -8370,7 +8392,7 @@ snapshots:
   '@types/nodemailer@7.0.1':
     dependencies:
       '@aws-sdk/client-sesv2': 3.891.0
-      '@types/node': 24.5.2
+      '@types/node': 20.19.13
     transitivePeerDependencies:
       - aws-crt
 

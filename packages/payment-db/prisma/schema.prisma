@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PAYMENT_DATABASE_URL")
+}
+
+model PaymeTransaction {
+  id          String   @id                // Payme 的交易 ID（params.id）
+  orderId     String                      // 你的订单 ID（params.account.order_id）
+  amount      Int                         // 单位：tiyin
+  state       Int                         // 1=创建中 2=完成 -1=取消
+  reason      Int?                        // 取消原因（CancelTransaction 时填入）
+  createTime  BigInt                      // Payme 传来的时间戳（毫秒）
+  performTime BigInt?                     // 支付完成时间
+  cancelTime  BigInt?                     // 取消时间
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

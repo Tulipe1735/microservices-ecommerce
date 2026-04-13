@@ -1,25 +1,7 @@
-import { consumer } from "./redis";
-import { createStripeProduct, deleteStripeProduct } from "./stripeProduct";
+import { consumer } from "./redis.js";
 
 export const runRedisSubscriptions = async () => {
-  await consumer.subscribe([
-    {
-      topicName: "product.created",
-      topicHandler: async (message) => {
-        const product = message.value;
-        console.log("Received message: product.created", product);
-
-        await createStripeProduct(product);
-      },
-    },
-    {
-      topicName: "product.deleted",
-      topicHandler: async (message) => {
-        const productId = message.value;
-        console.log("Received message: product.deleted", productId);
-
-        await deleteStripeProduct(productId);
-      },
-    },
-  ]);
+  // product.created / product.deleted 不再需要同步到 Stripe
+  // 如果将来需要监听其他服务的消息，在这里添加
+  await consumer.subscribe([]);
 };

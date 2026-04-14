@@ -5,8 +5,10 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "check-types": "tsc --noEmit",
-    "dev": "tsx --env-file=.env -r tsconfig-paths/register --watch src/index.ts"
+    "dev": "tsx --env-file=.env -r tsconfig-paths/register --watch src/index.ts",
+    "build": "tsc",
+    "start": "node -r tsconfig-paths/register dist/index.js",
+    "check-types": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

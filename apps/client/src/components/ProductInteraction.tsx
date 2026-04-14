@@ -74,7 +74,7 @@ const ProductInteraction = ({
       <div className="flex flex-col gap-2 text-xs">
         <span className="text-gray-500">Size</span>
         <div className="flex items-center gap-2">
-          {product.sizes.map((s) => (
+          {product.sizes.map((s: string) => (
             <div
               className={`cursor-pointer border-1 p-[2px] ${
                 selectedSize === s ? "border-gray-600" : "border-gray-300"

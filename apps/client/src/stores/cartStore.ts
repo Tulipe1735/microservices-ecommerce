@@ -1,50 +1,53 @@
 import { CartStoreActionsType, CartStoreStateType } from "@repo/types";
+
 import { create } from "zustand";
+
 import { createJSONStorage, persist } from "zustand/middleware";
 
 const useCartStore = create<CartStoreStateType & CartStoreActionsType>()(
   persist(
     (set) => ({
       cart: [],
+
       hasHydrated: false,
+
       addToCart: (product) =>
         set((state) => {
-          // 1. 查找是否已经存在相同 ID、尺寸和颜色的产品
-          const isExisting = state.cart.find(
+          const existingProductIndex = state.cart.findIndex(
             (p) =>
               p.id === product.id &&
               p.selectedSize === product.selectedSize &&
               p.selectedColor === product.selectedColor,
           );
 
-          if (isExisting) {
-            // 2. 如果存在，使用 map 返回一个新数组，并更新目标产品的 quantity
-            return {
-              cart: state.cart.map((item) =>
-                item.id === product.id &&
-                item.selectedSize === product.selectedSize &&
-                item.selectedColor === product.selectedColor
-                  ? {
-                      ...item,
-                      quantity: item.quantity + (product.quantity || 1),
-                    }
-                  : item,
-              ),
-            };
+          if (existingProductIndex !== -1) {
+            const updatedCart = [...state.cart];
+            const existingProduct = updatedCart[existingProductIndex];
+
+            if (existingProduct) {
+              existingProduct.quantity += product.quantity || 1;
+            }
+
+            return { cart: updatedCart };
           }
 
           return {
             cart: [
               ...state.cart,
+
               {
                 ...product,
+
                 quantity: product.quantity || 1,
+
                 selectedSize: product.selectedSize,
+
                 selectedColor: product.selectedColor,
               },
             ],
           };
         }),
+
       removeFromCart: (product) =>
         set((state) => ({
           cart: state.cart.filter(
@@ -56,11 +59,15 @@ const useCartStore = create<CartStoreStateType & CartStoreActionsType>()(
               ),
           ),
         })),
+
       clearCart: () => set({ cart: [] }),
     }),
+
     {
       name: "cart",
+
       storage: createJSONStorage(() => localStorage),
+
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.hasHydrated = true;

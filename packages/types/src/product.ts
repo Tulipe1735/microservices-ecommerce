@@ -5,12 +5,6 @@ export type ProductType = Product;
 
 export type ProductsType = ProductType[];
 
-export type StripeProductType = {
-  id: string;
-  name: string;
-  price: number;
-};
-
 export const colors = [
   "blue",
   "green",

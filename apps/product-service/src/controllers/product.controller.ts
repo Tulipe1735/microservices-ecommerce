@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { BestSellerType, StripeProductType } from "@repo/types";
+import { BestSellerType } from "@repo/types"; // ← 删掉 StripeProductType
 import { Prisma, prisma } from "@repo/product-db";
 import { producer } from "../utils/redis";
 
@@ -59,7 +59,6 @@ const getPopularProducts = async (limit?: number) => {
     );
 };
 
-// 创建产品
 export const createProduct = async (req: Request, res: Response) => {
   const data: Prisma.ProductCreateInput = req.body;
 
@@ -82,13 +81,7 @@ export const createProduct = async (req: Request, res: Response) => {
 
   const product = await prisma.product.create({ data });
 
-  const stripeProduct: StripeProductType = {
-    id: product.id.toString(),
-    name: product.name,
-    price: product.price,
-  };
-
-  producer.send("product.created", { value: stripeProduct });
+  // ← Stripe 同步全部删掉，product 直接返回
   res.status(201).json(product);
 };
 
@@ -111,7 +104,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
     where: { id: Number(id) },
   });
 
-  await publishProductEvent("product.deleted", Number(id));
+  // ← product.deleted 事件也删掉，payment-service 不再监听它
 
   return res.status(200).json(deletedProduct);
 };

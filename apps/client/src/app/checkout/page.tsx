@@ -1,7 +1,7 @@
 "use client";
 
 import ShippingForm from "@/components/ShippingForm";
-import StripePaymentForm from "@/components/StripePaymentForm";
+import PaymePaymentForm from "@/components/PaymePaymentForm";
 import useCartStore from "@/stores/cartStore";
 import { ShippingFormInputs } from "@repo/types";
 import { useSearchParams } from "next/navigation";
@@ -58,7 +58,7 @@ const CheckoutPage = () => {
           {activeStep === 2 ? (
             <ShippingForm setShippingForm={setShippingForm} />
           ) : activeStep === 3 && shippingForm ? (
-            <StripePaymentForm shippingForm={shippingForm} />
+            <PaymePaymentForm shippingForm={shippingForm} />
           ) : (
             <p className="text-sm text-gray-500">
               Please fill in the shipping form to continue.

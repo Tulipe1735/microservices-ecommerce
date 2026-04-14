@@ -9,22 +9,28 @@ const useCartStore = create<CartStoreStateType & CartStoreActionsType>()(
       hasHydrated: false,
       addToCart: (product) =>
         set((state) => {
-          const existingProductIndex = state.cart.findIndex(
+          // 1. 查找是否已经存在相同 ID、尺寸和颜色的产品
+          const isExisting = state.cart.find(
             (p) =>
               p.id === product.id &&
               p.selectedSize === product.selectedSize &&
               p.selectedColor === product.selectedColor,
           );
 
-          if (existingProductIndex !== -1) {
-            const updatedCart = [...state.cart];
-            const existingProduct = updatedCart[existingProductIndex];
-
-            if (existingProduct) {
-              existingProduct.quantity += product.quantity;
-            }
-
-            return { cart: updatedCart };
+          if (isExisting) {
+            // 2. 如果存在，使用 map 返回一个新数组，并更新目标产品的 quantity
+            return {
+              cart: state.cart.map((item) =>
+                item.id === product.id &&
+                item.selectedSize === product.selectedSize &&
+                item.selectedColor === product.selectedColor
+                  ? {
+                      ...item,
+                      quantity: item.quantity + (product.quantity || 1),
+                    }
+                  : item,
+              ),
+            };
           }
 
           return {

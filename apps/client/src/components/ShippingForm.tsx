@@ -45,21 +45,6 @@ const ShippingForm = ({
         )}
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor="email" className="text-xs text-gray-500 font-medium">
-          Email
-        </label>
-        <input
-          className="border-b border-gray-200 py-2 outline-none text-sm"
-          type="email"
-          id="email"
-          placeholder="johndoe@gmail.com"
-          {...register("email")}
-        />
-        {errors.email && (
-          <p className="text-xs text-red-500">{errors.email.message}</p>
-        )}
-      </div>
-      <div className="flex flex-col gap-1">
         <label htmlFor="phone" className="text-xs text-gray-500 font-medium">
           Phone
         </label>

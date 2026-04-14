@@ -11,8 +11,8 @@
     "@hono/clerk-auth": "^3.0.3",
     "@hono/node-server": "^1.19.0",
     "hono": "^4.9.6",
-    "stripe": "^18.5.0",
-    "@repo/redis": "workspace:*"
+    "@repo/redis": "workspace:*",
+    "@repo/payment-db": "workspace:*"
   },
   "devDependencies": {
     "@repo/types": "workspace:*",

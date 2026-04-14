@@ -1,7 +1,5 @@
 "use client";
 
-import ShippingForm from "@/components/ShippingForm";
-import StripePaymentForm from "@/components/StripePaymentForm";
 import useCartStore from "@/stores/cartStore";
 import { ShippingFormInputs } from "@repo/types";
 import { ArrowRight, Trash2 } from "lucide-react";

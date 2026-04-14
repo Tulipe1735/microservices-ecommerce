@@ -55,14 +55,14 @@ const ProductCard = ({ product }: { product: ProductType }) => {
         if (bmi < 27) return "M";
         return "L";
       } else if (height < 170) {
-        if (bmi < 18.5) return "s";
-        if (bmi < 23) return "m";
-        if (bmi < 27) return "l";
+        if (bmi < 18.5) return "S";
+        if (bmi < 23) return "M";
+        if (bmi < 27) return "L";
         return "XL";
       } else {
-        if (bmi < 18.5) return "m";
-        if (bmi < 23) return "l";
-        if (bmi < 27) return "xl";
+        if (bmi < 18.5) return "M";
+        if (bmi < 23) return "L";
+        if (bmi < 27) return "XL";
         return "XXL";
       }
     };

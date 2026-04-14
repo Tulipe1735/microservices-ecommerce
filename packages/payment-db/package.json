@@ -1,5 +1,5 @@
 {
-  "name": "@repo/product-db",
+  "name": "@repo/payment-db",
   "version": "0.0.0",
   "type": "module",
   "scripts": {

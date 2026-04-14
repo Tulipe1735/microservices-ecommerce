@@ -18,9 +18,9 @@ const categories = [
     slug: "all",
   },
   {
-    name: "Suits",
+    name: "Collections",
     icon: <CoatHanger className="w-4 h-4" />,
-    slug: "suits",
+    slug: "collections",
   },
   {
     name: "T-shirts",

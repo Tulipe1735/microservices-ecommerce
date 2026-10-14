@@ -10,6 +10,25 @@ const useCartStore = create<CartStoreStateType & CartStoreActionsType>()(
       cart: [],
 
       hasHydrated: false,
+      completedCheckouts: [],
+
+      completeCheckout: (sessionId, items) =>
+        set((state) => {
+          if (state.completedCheckouts.includes(sessionId)) return state;
+          return {
+            completedCheckouts: [...state.completedCheckouts, sessionId],
+            cart: state.cart.flatMap((item) => {
+              const purchased = items.find(
+                (paid) =>
+                  paid.id === item.id &&
+                  paid.selectedSize === item.selectedSize &&
+                  paid.selectedColor === item.selectedColor,
+              );
+              const quantity = item.quantity - (purchased?.quantity ?? 0);
+              return quantity > 0 ? [{ ...item, quantity }] : [];
+            }),
+          };
+        }),
 
       addToCart: (product) =>
         set((state) => {

@@ -1,3 +1,9 @@
+# Pulse E-commerce
+
+后端 Docker 与 Vercel 配置见 [部署说明](deploy/README.md)。
+
+支付已改为 Stripe 支付宝；配置、数据变更与测试说明见 [支付服务文档](apps/payment-service/README.md)。
+
 # Turborepo starter
 
 This Turborepo starter is maintained by the Turborepo core team.

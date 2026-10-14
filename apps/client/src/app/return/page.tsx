@@ -1,30 +1,17 @@
 import Link from "next/link";
-import React from "react";
+import PaymentStatus from "@/components/PaymentStatus";
 
-const ReturnPage = async ({
+export default async function ReturnPage({
   searchParams,
 }: {
-  searchParams: Promise<{ session_id: string }> | undefined; //session id 作为参数导入到return页面
-}) => {
-  const session_id = (await searchParams)?.session_id;
-
-  if (!session_id) {
-    return <div>No session id found!</div>;
-  }
-
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_PAYMENT_SERVICE_URL}/sessions/${session_id}`,
-  );
-  const data = await res.json();
-
-  return (
-    <div className="">
-      {/* 从session.route拿到的支付状态 */}
-      <h1>Payment {data.status}</h1>
-      <p>Payment status: {data.paymentStatus}</p>
-      <Link href="/orders">See your orders</Link>
-    </div>
-  );
-};
-
-export default ReturnPage;
+  searchParams: Promise<{ session_id?: string }>;
+}) {
+  const { session_id } = await searchParams;
+  if (!session_id)
+    return (
+      <div className="p-8">
+        No payment session found. <Link href="/cart">Return to cart</Link>
+      </div>
+    );
+  return <PaymentStatus sessionId={session_id} />;
+}

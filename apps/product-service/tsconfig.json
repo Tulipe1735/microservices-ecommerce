@@ -3,9 +3,8 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
-    "moduleResolution": "Node",
-    "outDir": "dist",
-    "rootDir": "src",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true

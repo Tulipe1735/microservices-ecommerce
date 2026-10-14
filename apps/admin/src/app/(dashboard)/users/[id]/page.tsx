@@ -46,8 +46,12 @@ const getData = async (id: string): Promise<User | null> => {
   }
 };
 
-const SingleUserPage = async ({ params }: { params: { id: string } }) => {
-  const { id } = params;
+const SingleUserPage = async ({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) => {
+  const { id } = await params;
   const data = await getData(id);
 
   if (!data) {

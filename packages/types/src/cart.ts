@@ -25,10 +25,18 @@ export type ShippingFormInputs = z.infer<typeof shippingFormSchema>;
 export type CartStoreStateType = {
   cart: CartItemsType;
   hasHydrated: boolean;
+  completedCheckouts: string[];
 };
 
 export type CartStoreActionsType = {
   addToCart: (product: CartItemType) => void;
   removeFromCart: (product: CartItemType) => void;
   clearCart: () => void;
+  completeCheckout: (
+    sessionId: string,
+    items: Pick<
+      CartItemType,
+      "id" | "quantity" | "selectedSize" | "selectedColor"
+    >[],
+  ) => void;
 };

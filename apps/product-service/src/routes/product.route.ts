@@ -10,7 +10,7 @@ import { shouldBeAdmin } from "../middleware/authMiddleware";
 
 const router: Router = Router();
 
-router.post("/", createProduct);
+router.post("/", shouldBeAdmin, createProduct);
 router.put("/:id", shouldBeAdmin, updateProduct);
 router.delete("/:id", shouldBeAdmin, deleteProduct);
 router.get("/", getProducts);

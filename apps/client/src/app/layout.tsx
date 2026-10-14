@@ -41,16 +41,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning className={cn("font-sans", poppins.variable)}>
-        <body className={`${poppins.variable} antialiased`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn("font-sans", poppins.variable)}
+    >
+      <body className={`${poppins.variable} antialiased`}>
+        <ClerkProvider>
           <div className="mx-auto flex min-h-screen flex-col p-4 sm:max-w-xl sm:px-0 md:max-w-2xl lg:max-w-3xl xl:max-w-6xl">
             <Navbar />
             <main className="flex-grow">{children}</main>
           </div>
           <ToastContainer position="bottom-right" />
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

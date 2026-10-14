@@ -1,0 +1,3 @@
+# Generated native engines are recreated by prisma generate on each platform.
+generated/prisma/*.so.node
+generated/prisma/*.dylib.node

@@ -2,7 +2,7 @@ import "dotenv/config";
 import Fastify from "fastify";
 import Clerk from "@clerk/fastify";
 import { shouldBeUser } from "./middleware/authMiddleware.js";
-import { connectOrderDB } from "@repo/order-db";
+import { connectOrderDB, Order } from "@repo/order-db";
 import { orderRoute } from "./routes/order.js";
 import { consumer, producer } from "./utils/redis.js";
 import { runRedisSubscriptions } from "./utils/subscriptions.js";
@@ -11,7 +11,10 @@ const fastify = Fastify();
 
 fastify.addHook("onRequest", async (request, reply) => {
   const origin = request.headers.origin;
-  const allowedOrigins = ["http://localhost:3002", "http://localhost:3003"];
+  const allowedOrigins = [
+    process.env.CLIENT_URL ?? "http://localhost:3002",
+    process.env.ADMIN_URL ?? "http://localhost:3003",
+  ];
 
   if (origin && allowedOrigins.includes(origin)) {
     reply.header("Access-Control-Allow-Origin", origin);
@@ -52,8 +55,9 @@ const start = async () => {
       producer.connect(),
       consumer.connect(),
     ]);
+    await Order.init();
     await runRedisSubscriptions();
-    await fastify.listen({ port: 8001 });
+    await fastify.listen({ port: 8001, host: "0.0.0.0" });
     console.log("Order service is running on port 8001");
   } catch (err) {
     console.log(err);

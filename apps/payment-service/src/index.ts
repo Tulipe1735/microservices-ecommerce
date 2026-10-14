@@ -3,14 +3,22 @@ import { clerkMiddleware } from "@hono/clerk-auth";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import sessionRoute from "./routes/session.route.js";
-import webhookRoute from "./routes/webhooks.route.js"; // 改成 payme 回调，但文件名不变
-import { consumer, producer } from "./utils/redis.js";
-import { runRedisSubscriptions } from "./utils/subscriptions.js";
+import webhookRoute from "./routes/webhooks.route.js";
+import { producer } from "./utils/redis.js";
+import { getClientUrl } from "./utils/stripe.js";
 
 const app = new Hono();
 
-app.use("*", clerkMiddleware());
-app.use("*", cors({ origin: ["http://localhost:3002"] }));
+app.use("/sessions/*", cors({ origin: [getClientUrl()] }));
+app.use(
+  "/sessions/*",
+  clerkMiddleware({
+    secretKey: process.env.CLERK_SECRET_KEY,
+    publishableKey:
+      process.env.CLERK_PUBLISHABLE_KEY ??
+      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+  }),
+);
 
 app.get("/health", (c) => {
   return c.json({
@@ -21,12 +29,11 @@ app.get("/health", (c) => {
 });
 
 app.route("/sessions", sessionRoute);
-app.route("/payme", webhookRoute); // ← 只改这里，"/webhooks" → "/payme"
+app.route("/webhooks", webhookRoute);
 
 const start = async () => {
   try {
-    await Promise.all([producer.connect(), consumer.connect()]);
-    await runRedisSubscriptions();
+    await producer.connect();
 
     serve(
       {

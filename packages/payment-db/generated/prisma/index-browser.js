@@ -135,9 +135,28 @@ exports.Prisma.PaymeTransactionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.StripeCheckoutScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  userId: 'userId',
+  amount: 'amount',
+  currency: 'currency',
+  cart: 'cart',
+  shippingAddress: 'shippingAddress',
+  status: 'status',
+  paymentIntentId: 'paymentIntentId',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -150,9 +169,16 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
 
 exports.Prisma.ModelName = {
-  PaymeTransaction: 'PaymeTransaction'
+  PaymeTransaction: 'PaymeTransaction',
+  StripeCheckout: 'StripeCheckout'
 };
 
 /**

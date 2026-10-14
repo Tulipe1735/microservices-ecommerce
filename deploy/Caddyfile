@@ -1,0 +1,33 @@
+{
+  default_sni {$BACKEND_HOST}
+}
+
+{$BACKEND_HOST} {
+  # Explicit public issuer is required for an IP address (Caddy defaults to a local CA).
+  tls force_automate {
+    issuer acme {
+      dir https://acme-v02.api.letsencrypt.org/directory
+      profile shortlived
+    }
+  }
+  encode zstd gzip
+
+  handle /health {
+    respond "ok" 200
+  }
+  handle_path /products-api/* {
+    reverse_proxy product-service:8000
+  }
+  handle_path /orders-api/* {
+    reverse_proxy order-service:8001
+  }
+  handle_path /payments-api/* {
+    reverse_proxy payment-service:8002
+  }
+  handle_path /auth-api/* {
+    reverse_proxy auth-service:8003
+  }
+  handle {
+    respond "Not found" 404
+  }
+}

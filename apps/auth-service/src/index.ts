@@ -8,13 +8,11 @@ import { producer } from "./utils/redis.js";
 const app = express();
 app.use(
   cors({
-    origin: ["http://localhost:3003"], //auth_service env
+    origin: [process.env.ADMIN_URL ?? "http://localhost:3003"],
     credentials: true,
   }),
 );
 app.use(express.json());
-app.use(clerkMiddleware());
-
 app.get("/health", (req: Request, res: Response) => {
   return res.status(200).json({
     status: "ok",
@@ -23,6 +21,7 @@ app.get("/health", (req: Request, res: Response) => {
   });
 });
 
+app.use(clerkMiddleware());
 app.use("/users", shouldBeAdmin, userRoute);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {

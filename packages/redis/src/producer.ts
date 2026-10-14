@@ -11,11 +11,17 @@ export const createProducer = (client: RedisClient) => {
     await client.publish(channel, JSON.stringify(message));
   };
 
+  const sendDurable = async (channel: string, message: object) => {
+    await client.xAdd(`stream:${channel}`, "*", {
+      payload: JSON.stringify(message),
+    });
+  };
+
   const disconnect = async () => {
     if (client.isOpen) {
       await client.quit();
     }
   };
 
-  return { connect, send, disconnect };
+  return { connect, send, sendDurable, disconnect };
 };

@@ -1,5 +1,5 @@
 # ---------- 1. 基础镜像 ----------
-FROM node:20-alpine
+FROM node:22-alpine
 
 # ---------- 2. 工作目录 ----------
 WORKDIR /app
@@ -15,13 +15,15 @@ COPY . .
 RUN pnpm install --frozen-lockfile
 
 # ---------- 6. 构建 payment-service ----------
-RUN pnpm --filter payment-service build
+RUN pnpm --filter @repo/product-db exec prisma generate \
+    && pnpm --filter @repo/payment-db exec prisma generate \
+    && pnpm --filter payment-service build
 
 # ---------- 7. 切换到 service 目录 ----------
 WORKDIR /app/apps/payment-service
 
 # ---------- 8. 暴露端口 ----------
-EXPOSE 3000
+EXPOSE 8002
 
 # ---------- 9. 启动 ----------
 CMD ["pnpm", "start"]

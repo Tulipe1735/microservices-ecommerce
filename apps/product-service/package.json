@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx --env-file=.env --watch src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "build": "tsc --noEmit",
+    "start": "tsx src/index.ts",
     "check-types": "tsc --noEmit"
   },
   "keywords": [],
@@ -15,18 +15,16 @@
   "license": "ISC",
   "dependencies": {
     "@clerk/express": "^1.7.30",
-    "@prisma/client": "^7.5.0",
     "@repo/redis": "workspace:*",
     "@repo/product-db": "workspace:*",
     "cors": "^2.8.5",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "tsx": "^4.20.5"
   },
   "devDependencies": {
     "@repo/types": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "prisma": "^7.5.0",
-    "tsx": "^4.20.5"
+    "@types/express": "^5.0.3"
   }
 }

@@ -4,7 +4,7 @@ import SearchBar from "./SearchBar";
 import { Bell, Home, ShoppingCart } from "lucide-react";
 import ShoppingCartIcon from "./ShoppingCartIcon";
 import { Show } from "@clerk/nextjs";
-import React from "react";
+import React, { Suspense } from "react";
 import ProfileButton from "./ProfileButton";
 
 const Navbar = () => {
@@ -25,7 +25,9 @@ const Navbar = () => {
       </Link>
       {/* 右部分 */}
       <div className="flex items-center gap-6">
-        <SearchBar />
+        <Suspense fallback={null}>
+          <SearchBar />
+        </Suspense>
         <Link href="/">
           <Home className="w-4 h-4 text-gray-600" />
         </Link>

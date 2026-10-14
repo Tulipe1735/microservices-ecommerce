@@ -1,12 +1,12 @@
 import { consumer } from "./redis";
-import { createOrder } from "./order";
+import { createOrder, paidOrderSchema } from "./order";
 
 export const runRedisSubscriptions = async () => {
   await consumer.subscribe([
     {
       topicName: "payment.successful",
       topicHandler: async (message) => {
-        const order = message.value;
+        const { value: order } = paidOrderSchema.parse(message);
         await createOrder(order);
       },
     },

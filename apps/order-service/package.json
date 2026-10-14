@@ -7,8 +7,9 @@
   "scripts": {
     "dev": "tsx --env-file=.env -r tsconfig-paths/register --watch src/index.ts",
     "build": "tsc",
-    "start": "node -r tsconfig-paths/register dist/index.js",
-    "check-types": "tsc --noEmit"
+    "start": "tsx src/index.ts",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "",
@@ -17,8 +18,8 @@
     "@repo/types": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/node": "^20.19.13",
-    "tsx": "^4.7.1",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vitest": "^5.0.4"
   },
   "dependencies": {
     "@clerk/fastify": "^2.4.30",
@@ -28,6 +29,8 @@
     "dotenv": "^17.3.1",
     "esbuild": "^0.27.4",
     "fastify": "^5.5.0",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.7.1",
+    "zod": "^4.3.6"
   }
 }

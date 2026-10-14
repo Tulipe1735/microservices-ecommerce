@@ -170,7 +170,7 @@ services:
       PAYMENT_DATABASE_URL: postgresql://pulse:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/pulse_payments?connection_limit=5
       STRIPE_API_KEY: ${STRIPE_API_KEY:?Set a restricted Stripe test API key}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:?Set STRIPE_WEBHOOK_SECRET}
-      STRIPE_PAYMENT_METHOD_CONFIGURATION: ${STRIPE_PAYMENT_METHOD_CONFIGURATION:-}
+      STRIPE_PAYMENT_METHOD_CONFIGURATION_ID: ${STRIPE_PAYMENT_METHOD_CONFIGURATION_ID:-}
     depends_on:
       payment-migrate:
         condition: service_completed_successfully

@@ -1,6 +1,14 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
+import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 
-export default clerkMiddleware();
+const authenticate = clerkMiddleware();
+
+export default function middleware(request: NextRequest, event: NextFetchEvent) {
+  // Stripe requests are authenticated by their signature in the payment service.
+  if (request.nextUrl.pathname === "/api/stripe-webhook")
+    return NextResponse.next();
+  return authenticate(request, event);
+}
 
 export const config = {
   matcher: [

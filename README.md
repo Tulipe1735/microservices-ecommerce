@@ -1,141 +1,64 @@
 # Pulse E-commerce
 
-后端 Docker 与 Vercel 配置见 [部署说明](deploy/README.md)。
+基于 Turborepo 的事件驱动微服务电商平台。两个 Next.js 前端（顾客商城 `client`、管理后台 `admin`）配合多个 Node.js 后端服务，通过 Redis Streams 异步通信，使用 Clerk 认证、Stripe 支付，并以 PostgreSQL / MongoDB 持久化数据。
 
-支付已改为 Stripe 支付宝；配置、数据变更与测试说明见 [支付服务文档](apps/payment-service/README.md)。
+## 在线预览
 
-# Turborepo starter
+| 应用 | 网址 |
+| --- | --- |
+| 商城（client） | https://pulse-client-tulipe1735s-projects.vercel.app/ |
+| 管理后台（admin） | https://pulse-admin-rust.vercel.app/ |
 
-This Turborepo starter is maintained by the Turborepo core team.
+## 架构
 
-## Using this example
+| 应用 | 技术 | 端口 | 职责 |
+| --- | --- | --- | --- |
+| `apps/client` | Next.js | 3002 | 顾客商城、购物车与结账 |
+| `apps/admin` | Next.js | 3003 | 管理后台（商品、分类、订单、用户） |
+| `apps/product-service` | Express | 8000 | 商品与分类 |
+| `apps/order-service` | Fastify | 8001 | 订单流程 |
+| `apps/payment-service` | Hono | 8002 | Stripe 结账会话与 Webhook |
+| `apps/auth-service` | Express | 8003 | 基于 Clerk 的用户管理 |
+| `apps/email-service` | Redis 消费者 | — | 欢迎邮件与订单通知 |
 
-Run the following command:
+各服务通过 Redis Streams 异步通信（如 `user.created`、`order.created`），邮件服务消费这些事件发送通知。
+
+### 共享包
+
+- `@repo/redis` – Redis Streams 生产者与消费者封装
+- `@repo/product-db` / `@repo/payment-db` – PostgreSQL 数据库客户端（Prisma）
+- `@repo/order-db` – MongoDB 数据库客户端
+- `@repo/types` – 共享 TypeScript 类型
+- `@repo/eslint-config` / `@repo/typescript-config` – 共享配置
+
+## 技术栈
+
+Turborepo · pnpm · TypeScript · Next.js · React · Express · Fastify · Hono · Redis Streams · PostgreSQL · MongoDB · Clerk · Stripe · Prisma · Tailwind CSS
+
+## 本地开发
 
 ```sh
-npx create-turbo@latest
+# 安装依赖
+pnpm install
+
+# 启动全部应用与服务
+pnpm dev
+
+# 类型检查
+pnpm check-types
+
+# 构建
+pnpm build
 ```
 
-## What's inside?
+按过滤器运行单个工作区：
 
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+```sh
+pnpm dev --filter=client
+pnpm dev --filter=admin
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+## 部署
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+- 后端 Docker 与 Vercel 配置见 [部署说明](deploy/README.md)。
+- 支付已改为 Stripe 支付宝；配置、数据变更与测试说明见 [支付服务文档](apps/payment-service/README.md)。

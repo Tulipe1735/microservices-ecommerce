@@ -7,7 +7,7 @@ import webhookRoute from "./routes/webhooks.route.js";
 import { producer } from "./utils/redis.js";
 import { getClientUrl } from "./utils/stripe.js";
 
-const app = new Hono();
+const app = new Hono({ strict: false });
 
 app.use("/sessions/*", cors({ origin: [getClientUrl()] }));
 app.use(

@@ -42,7 +42,7 @@ docker compose ps
 
 ## Stripe 与 Vercel
 
-Stripe 使用测试账户。本部署的 Webhook 入口为 `https://CLIENT_HOST/api/stripe-webhook`，Vercel 原样转发请求正文和 Stripe 签名到 Docker 的 `/payments-api/webhooks/`，由支付服务验证签名并处理到账。客户端生产地址需允许 Stripe 公网访问；商城结账仍需要 Clerk 登录。也可在确认 Stripe 能直接访问服务器后使用 `https://BACKEND_HOST/payments-api/webhooks/`。
+Stripe 使用测试账户，Webhook 地址为 `https://BACKEND_HOST/payments-api/webhooks`。支付服务验证原始请求正文和 Stripe 签名，兼容末尾带斜杠的回调地址。商城结账需要 Clerk 登录；Vercel 客户端正式地址公开访问，预览版和 admin 保留 Vercel 保护。
 
 启用以下事件，并将签名密钥保存在后端 `.env` 的 `STRIPE_WEBHOOK_SECRET`：
 
